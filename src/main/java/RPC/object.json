@@ -1,0 +1,6 @@
+{ 
+  "PDFTest": [ 
+    {"_id": "IDstring", "field2": "ObjectID"}
+  ] ,
+  "special message": "hello, world!" 
+}

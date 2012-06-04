@@ -1,0 +1,9 @@
+{ 
+	"array" : [ 1, { "name" : "Billy" }, null ],
+	"ClassName" : "HIstory period 1" , 
+	"Testvar" : [ {"field1" : "cool story",
+					"field2" : "what up"}],
+	"PDFTest" : [ { "_id" : { "$oid" : "4fcc5b3d1bac9530c2000090"}}] ,
+	"TestName" : "First test" ,
+	 "_id" : { "$oid" : "4fcabbe1d41f228a4c000088"}
+	}

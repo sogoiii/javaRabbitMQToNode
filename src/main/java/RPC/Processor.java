@@ -2,6 +2,7 @@ package RPC;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.pdfbox.pdmodel.PDDocument;
 
 
 
@@ -40,6 +42,7 @@ public class Processor {
 	static DBCollection coll = null; //name of test collection
 	static ObjectMapper mapper = null; //parsing of json objects
 	static GridFS gfsPhoto = null;  // gridfs interfance
+	static GridFS gfsTestPDF = null; //gridfs object
 	
     public static void main(String [] args) throws MongoException, JsonProcessingException, IOException {
         System.out.println("Processor: initializing");
@@ -77,7 +80,7 @@ public class Processor {
     
         coll = db.getCollection("testschemas");
         // create a "TestPDF" namespace
-     	GridFS gfsTestPDF = new GridFS(db, "TestPDF");
+     	gfsTestPDF = new GridFS(db, "fs");
         
      // make a document and insert it
 //        BasicDBObject doc = new BasicDBObject();
@@ -136,64 +139,35 @@ public class Processor {
                          System.out.println("correlationId: " +
                              correlationId +
                              " responseQueue: " +
-                             responseQueue);
-//                         System.out.println("recieved = " + message);      //what this function has received    
+                             responseQueue); 
                          
                          
                          
                          
                          //Converting the input into a java json object to pull information
-                         Map<String, Object> userInMap = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
+                         Map<String, Object> ReceivedMessage = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
 //                         System.out.println(userInMap.get("testid"));
 
-                         String idString = (String) userInMap.get("testid");
-                         
+                         String idString = (String) ReceivedMessage.get("testid");
+                         System.out.println("test schema ID = " + idString );
                          BasicDBObject keys = new BasicDBObject();
                          keys.put("ClassName",1);
                          keys.put("TestName",1); //to reach into variables you can do -> keys.put("info.x",1);
-                         keys.put("PDFTest._id", 1);//grab id of pdf file
+                         keys.put("PDFTest", 1);//grab id of pdf file
                          
+                         String Fileid = null;
                          //check databse to see if the test exists!
                          try{
 	                         DBObject testObject = coll.findOne(new BasicDBObject("_id", new ObjectId(idString)) , keys );
 	                         System.out.println("Will grade test = " + testObject);
-	                         Map<String, Object> resultMap = mapper.readValue(testObject.toString().getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
 	                         
-//	                          JsonNode jsonNode = mapper.readValue(testObject.toString().getBytes("UTF-8"), JsonNode.class);
-//	                          JsonNode userCards = jsonNode.path("PDFTest");
-//	                          Map<String, Object> pdftest  = mapper.readValue(userCards.toString().getBytes("UTF-8"), new TypeReference<Map<String, Object>>() {});
-	                          //System.out.println("value = " + pdftest.get("id").toString());
-	                         
-	                         
-//	                         List list = mapper.readValue(testObject.toString().getBytes("UTF-8"), List.class);
-//	                         for(int i = 0; i < list.size(); i++){
-//	                        	 System.out.println("value = " + list);
-//	                         }
-	                         
-	                         
-	                       
-//	  
-//	                         ArrayList<String> list = (ArrayList<String>) resultMap.get("PDFTest");
-//	                         for(int i = 0; i < list.size(); i++){
-//	                        	 System.out.println("value = " + list);
-//	                         }
-	                        // System.out.println("file object id = " + IDMap.get("_id"));
-	                         
-	                         
-	                         
+	                    
 	                         JsonNode rootNode = mapper.readValue(testObject.toString().getBytes("UTF-8"), JsonNode.class);
 	                         JsonNode PDF = rootNode.get("PDFTest");
-	                         System.out.println("result 3  = " + PDF.get(0).get("_id").get("$oid").getTextValue());
+	                         Fileid = new String(PDF.get(0).get("_id").get("$oid").getTextValue());
+	                         System.out.println("PDF file OBjectID  = " + Fileid);
 	                         
-	                         
-	                         
-	                         
-	                         
-	                         
-	                         
-	                         
-	                         
-	                         System.out.println("file object id = " + resultMap.get("PDFTest"));
+	                       
                          }
                          catch(IllegalArgumentException e) {	 
                         	 System.out.println("Failed to find objectID = '" + message+ "'");
@@ -203,8 +177,14 @@ public class Processor {
                          
                          
                          //Since test exists, grab the TestPDF from Gridfs
-                        // GridFSDBFile imageForOutput = gfsTestPDF.findOne();
-                         
+//                         BasicDBObject query = new BasicDBObject("metadata.target_field", "abcdefg"));
+                         GridFSDBFile imageForOutput = gfsTestPDF.findOne(new ObjectId(Fileid)); 
+                         //System.out.println("file found  = " + imageForOutput);
+                         InputStream is = imageForOutput.getInputStream();
+                       //  imageForOutput.writeTo("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/THETEST.pdf"); //output to new file
+                         PDDocument doc = PDDocument.load(is);
+                         int numpages = doc.getNumberOfPages(); //get page numbers for for loop
+                         System.out.println("number of pages = " + numpages);
                          
                          
                          AMQP.BasicProperties b = (new AMQP.BasicProperties.Builder())

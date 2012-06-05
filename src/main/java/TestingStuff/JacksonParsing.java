@@ -10,6 +10,11 @@ import org.codehaus.jackson.map.MappingJsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 
+import Workers.GradingWorker;
+
+
+
+
 public class JacksonParsing {
 	
 	public static void main(String[] args) throws Exception {
@@ -37,6 +42,10 @@ public class JacksonParsing {
 //	 if ("xmler".equalsIgnoreCase(lastName)) {
 //	   ((ObjectNode)nameNode).put("last", "Jsoner");
 //	 }
+	 
+//	 GradingWorker method = new GradingWorker();
+//	 method.test("whats up!");
+	 
 	 
 	    
 	    

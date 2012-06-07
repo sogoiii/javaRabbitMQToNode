@@ -12,9 +12,10 @@ import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.Stream2BufferedImage;
-import org.pdfbox.pdmodel.PDDocument;
-import org.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 
+import com.sun.pdfview.decode.
 public class PDD_ListPages {
 
 	
@@ -28,8 +29,8 @@ public class PDD_ListPages {
 		
 		System.out.println("number of pages PDD_LISTPAGES = " + pages.size());
 		for (int i = 0; i < pages.size(); i++) {
-			 PDPage singlePage = (PDPage) pages.get(i);
-			 BufferedImage buffImage = singlePage.convertToImage();
+			 PDPage singlePage = pages.get(i);
+			 //BufferedImage buffImage = singlePage.convertToImage();
 			// ImageIO.write(buffImage, "jpg", new File(PDF_file.getAbsolutePath() + "_" + i +".jpg"));
 		}
 		

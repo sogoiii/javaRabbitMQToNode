@@ -52,9 +52,9 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>pdfbox</groupId>
+			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
-			<version>0.7.3</version>
+			<version>1.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.im4java</groupId>
@@ -95,6 +95,13 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/javacv-bin/javacv-macosx-x86_64.jar</systemPath>
         </dependency>
+        
+        <dependency>
+			<groupId>org.swinglabs</groupId>
+			<artifactId>pdf-renderer</artifactId>
+			<version>1.0.5</version>
+		</dependency>
+            
 		
 		<dependency>
 	<groupId>jmagick</groupId>

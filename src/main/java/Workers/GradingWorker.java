@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -52,8 +53,9 @@ import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.Stream2BufferedImage;
-import org.pdfbox.pdmodel.PDDocument;
-import org.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.util.PDFTextStripper;
 
 
 import com.google.zxing.BinaryBitmap;
@@ -89,6 +91,38 @@ public class GradingWorker {
 	
 	public void Grader(InputStream is) throws IOException, InterruptedException, IM4JavaException{
 		System.out.println("inside grader");
+		
+		
+//		List<PDPage> pages = doc.getDocumentCatalog().getAllPages();
+		JFrame frame = new JFrame();
+		BufferedImage imageBuffer = ImageIO.read(is);
+		assert(imageBuffer != null) : "imagebuffer = null for some reason";
+		
+		//ImageIO.write(is, "PNG", new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/TESTTEST3.png"));
+//		frame.getContentPane().setLayout(new FlowLayout());
+//		ImageIO.write(newimage, "PNG", new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/TESTTEST3.png"));
+//		
+//		frame.pack();
+//		frame.setLocationRelativeTo(null);
+//		frame.setVisible(true);
+//		frame.getContentPane().add(new JLabel(new ImageIcon(imageBuffer)));
+		
+//		try {
+//		    // retrieve image
+//			//BufferedImage imageBuffer = ImageIO.read(is);
+//			File outputfile = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/Lbubble.png");
+//			BufferedImage PDF_img = ConvertPageToImage(outputfile,0);
+//		    ImageIO.write(PDF_img, "PNG", new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/TESTTEST.png"));
+//		} catch (IOException e) {
+//		    System.out.println("failed to save! inside of function");
+//		}
+		
+		
+		
+		
+		
+		
+		
 		
 //		 
 //		int numpages = thefile.getNumberOfPages(); //get page numbers for for loop

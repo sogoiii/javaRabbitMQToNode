@@ -1,9 +1,19 @@
 package RPC;
 
+import java.awt.Panel;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 
 import Workers.GradingWorker;
@@ -25,6 +35,7 @@ import com.mongodb.MongoException;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 
+
 import org.bson.types.ObjectId;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -33,7 +44,15 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.im4java.core.IM4JavaException;
-import org.pdfbox.pdmodel.PDDocument;
+import org.jpedal.PdfDecoder;
+import org.jpedal.exception.PdfException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDStream;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDJpeg;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 
 
 
@@ -46,7 +65,7 @@ public class GradePDF {
 	static GridFS gfsPhoto = null;  // gridfs interfance
 	static GridFS gfsTestPDF = null; //gridfs object
 	static Mongo m = null; //mongo connection
-	static GradingWorker ActiveGrader = null; //grading instance
+//	static GradingWorker ActiveGrader = null; //grading instance
 	
     public static void main(String [] args) throws MongoException, JsonProcessingException, IOException {
         System.out.println("GradePDF: initializing");
@@ -86,7 +105,7 @@ public class GradePDF {
         // create a "TestPDF" namespace
      	gfsTestPDF = new GridFS(db, "fs");
         
-     	ActiveGrader = new GradingWorker(); //create grading instance 
+//     	ActiveGrader = new GradingWorker(); //create grading instance 
         
        
         
@@ -133,20 +152,27 @@ public class GradePDF {
                          
                          String fileid = GetPDFFileID(message);
                          InputStream thefile = GrabPDFile(fileid);
-                         try {
-							ActiveGrader.Grader(thefile);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IM4JavaException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} //mongo, collection, gridfs //return something relevant if errors occur
                          
                          
                          
                          
                          
+//                         try {
+//							ActiveGrader.Grader(thefile);
+//						} catch (InterruptedException e) {
+//							// TODO Auto-generated catch block
+//							//e.printStackTrace();
+//							System.out.println("failed to save! interrupted excpetion");
+//						} catch (IM4JavaException e) {
+//							// TODO Auto-generated catch block
+//							//e.printStackTrace();
+//							System.out.println("failed to save! image 4java exception");
+//						} //mongo, collection, gridfs //return something relevant if errors occur
+                         
+                         
+                         
+                         
+                         System.out.println("Done with computational code!");
                          /*
                       		Working code Done now return to User
                         */                        
@@ -226,24 +252,102 @@ public class GradePDF {
 	
 	
 	
-	public static InputStream GrabPDFile(String Fileid){ //this should be a throw so i can do stuff above? ill leave the catch for now
+	public static InputStream GrabPDFile(String Fileid) throws IOException{ //this should be a throw so i can do stuff above? ill leave the catch for now
 		
         //Since test exists, grab the TestPDF from Gridfs
 //      BasicDBObject query = new BasicDBObject("metadata.target_field", "abcdefg"));
       GridFSDBFile imageForOutput = gfsTestPDF.findOne(new ObjectId(Fileid)); 
       //System.out.println("file found  = " + imageForOutput);
       InputStream is = imageForOutput.getInputStream();
+      
+      
+      //workign with jpedal, will read from inputstream
+      PdfDecoder decode_pdf = new PdfDecoder(true);
+      try{
+      decode_pdf.openPdfFileFromInputStream(is,true); //file
+      BufferedImage img = decode_pdf.getPageAsImage(1);
+      decode_pdf.closePdfFile();
+      File fileToSave = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/jpedalRPCTEST1.jpg");
+	  ImageIO.write(img, "jpg", fileToSave);
+	  JFrame frame = new JFrame("jpedal buffered image");
+		Panel panel = new Panel();
+		frame.getContentPane().add(new JLabel(new ImageIcon(img)));
+		frame.pack();
+//		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+      
+      }
+      catch(PdfException e) {
+		    e.printStackTrace();
+    	  
+      }
+      
+      
+      
+      
     //  imageForOutput.writeTo("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/THETEST.pdf"); //output to new file
-      PDDocument doc = null;
-		try {
-			doc = PDDocument.load(is);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-//      int numpages = doc.getNumberOfPages(); //get page numbers for for loop
-//      System.out.println("number of pages = " + numpages);
+//      PDDocument doc = null;
+//		try {
+//			doc = PDDocument.load(is);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+////      int numpages = doc.getNumberOfPages(); //get page numbers for for loop
+////      System.out.println("number of pages = " + numpages);
 		
+		
+		//testing stuff
+      
+//      BufferedImage imageBuffer = ImageIO.read(is);
+//      ImageIO.write(imageBuffer, "PNG", new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/TESTTEST3aaaaaaaaaa.png"));
+//      System.out.println("wrote file!");
+//      
+      
+		//one meothod
+//      List<PDPage> pages = doc.getDocumentCatalog().getAllPages();
+//      //for (int i = 0; i < pages.size(); i++) {
+//        PDPage page = pages.get(0);
+//        BufferedImage image = page.convertToImage();
+//        ImageIO.write(image, "jpg", new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/TESTTEST3aaaaaaaaaa.png"));
+//      //}
+      
+      
+      
+//		try {
+//			doc.save("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/THETESTTESTESTSTTSTST.pdf");
+//		} catch (COSVisitorException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+////
+//		PDPage page = (PDPage)doc.getDocumentCatalog().getAllPages().get( 0 );
+//		PDDocument newdoc = new PDDocument();
+//		newdoc.addPage(page);
+//		try {
+//			newdoc.save("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/singlepage1.pdf");
+//			newdoc.close();
+//		} catch (COSVisitorException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//
+//		PDXObjectImage ximage = new PDJpeg(new PDDocument(), is);
+//		ximage.write2file(new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/ximge_test.jpg"));
+//		
+//		
+//		BufferedImage bufferedImage=javax.imageio.ImageIO.read(is);
+//		if(bufferedImage == null){
+//			System.out.println("buffered image is null");
+//		}
+//		ImageIO.write(bufferedImage, "jpg", new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/javaximageio.jpg"));
+//		JFrame frame = new JFrame();
+//		frame.pack();
+//		frame.setLocationRelativeTo(null);
+//		frame.setVisible(true);
+//		frame.getContentPane().add(new JLabel(new ImageIcon(bufferedImage)));
 		
 		return is;
 	}//end of grab PDF

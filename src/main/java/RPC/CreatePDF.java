@@ -59,7 +59,7 @@ import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 
 
 
-public class GradePDF {
+public class CreatePDF {
 	
     static int calledtimes = 0;
 	
@@ -108,7 +108,6 @@ public class GradePDF {
         // create a "TestPDF" namespace
      	gfsTestPDF = new GridFS(db, "fs");
         
-     	ActiveGrader = new GradingWorker(); //create grading instance 
         
        
         
@@ -121,11 +120,11 @@ public class GradePDF {
             // exclusive - false
             // autoDelete - false
             // arguments - none
-            channel.queueDeclare("image", true, false, false, null);
+            channel.queueDeclare("createPDF", true, false, false, null);
 
             // Add a callback for when messages arrive at the queue
             // autoAck - false
-            channel.basicConsume("image", false,
+            channel.basicConsume("createPDF", false,
                  new DefaultConsumer(channel) {
                      @Override
                      public void handleDelivery(String consumerTag,
@@ -154,35 +153,15 @@ public class GradePDF {
                          */
                         
                          long lStartTime = new Date().getTime(); //start time
-                         
-                         String fileid = GetPDFFileID(message);
-                         GridFSDBFile imageForOutput = gfsTestPDF.findOne(new ObjectId(fileid)); //search db for the pdf file
-                         InputStream is = imageForOutput.getInputStream();//create inputs stream from result
-//                         InputStream thefile = GrabPDFile(fileid); //create pdf file 
-                         
-                         try {
-							ActiveGrader.Grader(is);
-						} catch (InterruptedException e) {//for any exception, still call the rpc with some data so i can do something back on the server
-							// TODO Auto-generated catch block
-							//e.printStackTrace();
-							System.out.println("failed to save! interrupted excpetion");
-						} catch (IM4JavaException e) {
-							// TODO Auto-generated catch block
-							//e.printStackTrace();
-							System.out.println("failed to save! image 4java exception");
-						} //mongo, collection, gridfs //return something relevant if errors occur
-                          catch (PdfException e) {
-							// TODO Auto-generated catch block
-//							e.printStackTrace();
-							System.out.println("failed jpedal code, should return to user now");
-						}
-                         
-                        
-                         
                          long lEndTime = new Date().getTime(); //end time
-                         
                          long difference = lEndTime - lStartTime; //check different
                          System.out.println("Elapsed milliseconds: " + difference);
+                         
+                         
+                         
+                         
+                         
+                         
                          
                          System.out.println("Done with computational code!");
                          /*
@@ -193,7 +172,9 @@ public class GradePDF {
                              .correlationId(correlationId)
                              .build();
 
-//                         waiting(3000);
+                         waiting(3000);
+                         
+                         
                          calledtimes++;
                          //String senttonode = new String("{\"cool\":\""+ calledtimes+ "\"}" );
                          String senttonode = new String("fromjava");
@@ -223,83 +204,9 @@ public class GradePDF {
     
     
 
-
-
-
-	public static String GetPDFFileID(String message) throws JsonParseException, JsonMappingException, UnsupportedEncodingException, IOException{
-		
-		 //Converting the input into a java json object to pull information
-       Map<String, Object> ReceivedMessage = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
-//       System.out.println(userInMap.get("testid"));
-
-       String idString = (String) ReceivedMessage.get("testid");
-       System.out.println("test schema ID = " + idString );
-       BasicDBObject keys = new BasicDBObject();
-       keys.put("ClassName",1);
-       keys.put("TestName",1); //to reach into variables you can do -> keys.put("info.x",1);
-       keys.put("PDFTest", 1);//grab id of pdf file
-       
-       String Fileid = null;
-       //check databse to see if the test exists!
-       try{
-           DBObject testObject = coll.findOne(new BasicDBObject("_id", new ObjectId(idString)) , keys );
-           System.out.println("Will grade test = " + testObject);
-           
-      
-           JsonNode rootNode = mapper.readValue(testObject.toString().getBytes("UTF-8"), JsonNode.class);
-           JsonNode PDF = rootNode.get("PDFTest");
-           Fileid = new String(PDF.get(0).get("_id").get("$oid").getTextValue());
-           System.out.println("PDF file OBjectID  = " + Fileid);
-           
-         
-       }
-       catch(IllegalArgumentException e) {	 
-      	 System.out.println("Failed to find objectID = '" + message+ "'");
-       }
-		
-		return Fileid;
-	}//end of GetTestID
 	
 	
 	
-	
-	
-	public static InputStream GrabPDFile(String Fileid) throws IOException{ //this should be a throw so i can do stuff above? ill leave the catch for now
-		
-        //Since test exists, grab the TestPDF from Gridfs
-//      BasicDBObject query = new BasicDBObject("metadata.target_field", "abcdefg"));
-      GridFSDBFile imageForOutput = gfsTestPDF.findOne(new ObjectId(Fileid)); 
-      //System.out.println("file found  = " + imageForOutput);
-      InputStream is = imageForOutput.getInputStream();
-      
-      
-      //workign with jpedal, will read from inputstream
-      PdfDecoder decode_pdf = new PdfDecoder(true);
-      try{
-      decode_pdf.openPdfFileFromInputStream(is,true); //file
-      BufferedImage img = decode_pdf.getPageAsImage(1);
-      decode_pdf.closePdfFile();
-      File fileToSave = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/jpedalRPCTEST1.jpg");
-	  ImageIO.write(img, "jpg", fileToSave);
-	  JFrame frame = new JFrame("jpedal buffered image");
-		Panel panel = new Panel();
-		frame.getContentPane().add(new JLabel(new ImageIcon(img)));
-		frame.pack();
-//		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-      
-      }
-      catch(PdfException e) {
-		    e.printStackTrace();
-    	  
-      }
-      
-      
-      
-     
-		
-		return is;
-	}//end of grab PDF
 
 
 

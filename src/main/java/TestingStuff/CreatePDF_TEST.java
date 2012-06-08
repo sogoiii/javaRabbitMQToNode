@@ -61,7 +61,7 @@ public class CreatePDF_TEST {
 		Q2.setPossibleAnswer(Q2PA);
 		
 		Question Q3 = new Question();
-		Q3.setQuestion("The alternative approach is to create a new BufferedImage and and draw a sc");
+		Q3.setQuestion("Got response code 502 with body Bad response. The server or forwarder response doesn't look like HTTP.");
 		Q3.setAnswer("Abraham Lincoln");
 		String[] Q3PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
 		Q3.setPossibleAnswer(Q3PA);
@@ -115,12 +115,11 @@ public class CreatePDF_TEST {
 	     PDFont font = PDType1Font.HELVETICA_BOLD; //set font of pdf
 	     
 	     
+	     //CREATE TITLE OF TEST
 	     String title = "page title for this test!";
 	     int marginTop = 15;
 	     PDPageContentStream stream = new PDPageContentStream(doc, page,true,true);
-//	     PDFont font = PDType1Font.HELVETICA_BOLD; // Or whatever font you want.
-	     stream.setFont( font, 12 );
-
+	     stream.setFont( font, 16 );
 	     int fontSize = 16; // Or whatever font size you want.
 	     float titleWidth = font.getStringWidth(title) / 1000 * fontSize;
 	     float titleHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize;
@@ -134,62 +133,42 @@ public class CreatePDF_TEST {
 	     stream.endText();
 	     stream.close();
 	     
-//	     System.out.println("size of string text = " + title.length());
-//	     System.out.println("sub string 1 = " + title.substring(0, 8));
-//	     System.out.println("sub string 1 = " + title.substring(8, 14));
-//	     
-//	     String[] words = title.split(" ");  
-//	     for (String word : words){
-//	    	 System.out.println(word + "has lenght = " + word.length()); 
-//	     }
 	     
-	     
+	     //create multple lines from single line 
 	     String testline = "You can convert it to a BufferedImage by copying its raster to a new BufferedImage. Serach for 'convert image to bufferedimage";
 	     List<String> linestrings = WriteLine(testline);
 	     for(String word : linestrings){
 	    	 System.out.println(word);
 	     }
 	     
-//	     String linestring[] = WriteLine(testline);
-//	     for(int i = 0; i < linestring.length;i++){
-//	    	 System.out.println(linestring[i]);
-//	     }
-	     
-//	     System.out.println("linestring = " + linestring[0]);
-//	     int entry = linestring[0].length();
-//	     System.out.println("Grab string from: (" + entry + " to "+ testline.length() + ")");
-//	     String remain = testline.substring(entry,testline.length());
-//	     System.out.println("remaining string = " + remain);
-	     
-//		for(int i = 0; i < numofquestions; i++){
-//			String qrCodeText = "Question "+i;
-//	        String filePath = "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/Quest"+i+".png";
-//	        
-//	        String fileType = "png";
-//	        File qrFile = new File(filePath);
-//	        BufferedImage aQRImage = null;
-//	        aQRImage = createQRImage(qrFile, qrCodeText, sizeofQRCode, fileType);
-//	        System.out.println("DONE with "+i);
-//	        
-//	        PDXObjectImage QRImage = new PDJpeg(doc, aQRImage);
-//	        PDXObjectImage bubble = new PDJpeg(doc, bubblgeImage);
-//	        PDPageContentStream contentStream = new PDPageContentStream(doc, page,true,true);
-//	        
-//	        contentStream.drawImage( QRImage, 30, (620-120*i) );
-//	        contentStream.setFont( font, 12 );
-//
-//	        WriteQuestionToPDF(contentStream, i, QA,bubble);
-//	        
-//	        
-//	        contentStream.close();
-//		}//end of for loop
+
+	    //CREATE THE PDF MAIN LOOP
+		for(int i = 0; i < numofquestions; i++){
+			String qrCodeText = "Question "+i;
+	        String filePath = "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/Quest"+i+".png";
+	        
+	        String fileType = "png";
+	        File qrFile = new File(filePath);
+	        BufferedImage aQRImage = null;
+	        aQRImage = createQRImage(qrFile, qrCodeText, sizeofQRCode, fileType);
+	        System.out.println("DONE with "+i);
+	        
+	        PDXObjectImage QRImage = new PDJpeg(doc, aQRImage);
+	        PDXObjectImage bubble = new PDJpeg(doc, bubblgeImage);
+	        PDPageContentStream contentStream = new PDPageContentStream(doc, page,true,true);
+	        
+	        contentStream.drawImage( QRImage, 30, (620-120*i) );
+	        contentStream.setFont( font, 12 );
+
+	        WriteQuestionToPDF(contentStream, i, QA,bubble);
+	        
+	        
+	        contentStream.close();
+		}//end of for loop
 	
 		//contentStream.close();
 		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST.pdf");
 		doc.close();
-		
-		
-		
 		
 	
 	}//end of main
@@ -198,16 +177,17 @@ public class CreatePDF_TEST {
 	
 	
 	private static void WriteQuestionToPDF(PDPageContentStream mycontentStream, int i, Question[] QA, PDXObjectImage bubble) throws IOException{
-		mycontentStream.beginText();
-		mycontentStream.moveTextPositionByAmount(150 , (715-120*i) );        
-		mycontentStream.drawString(QA[i].Question );
-		mycontentStream.endText();
-		System.out.println("size of question " + QA[i].Question.length());
-		 
-		 
-		
-		 
-		 
+		List<String> linestrings = WriteLine(QA[i].Question);
+		int linebuff = 0;
+	     for(String textline : linestrings){
+//	    	 System.out.println(line);
+	 		mycontentStream.beginText();
+	 		mycontentStream.moveTextPositionByAmount(150 , (715-(120*i-linebuff)));        
+	 		mycontentStream.drawString(textline);
+	 		mycontentStream.endText();	    	 
+	 		linebuff = linebuff - 15 ;
+	     }//end of linestring for
+	     
 		int shiftint = 0;
 		for(String s: QA[i].PossibleAnswers){ 
 			mycontentStream.drawImage(bubble, 150, (680-20*shiftint - 120*i));
@@ -216,9 +196,31 @@ public class CreatePDF_TEST {
 			mycontentStream.drawString(ReturnQuestionLetter(shiftint) + " " + QA[i].PossibleAnswers[shiftint] );
 			mycontentStream.endText();
 			shiftint = shiftint + 1;
-		}
+		}//end of possible answers for loop	
 		
-	}//end of Write Question to PDF
+		
+	}//end of writequtesiotntopdf
+	
+	
+	
+//	private static void WriteQuestionToPDF(PDPageContentStream mycontentStream, int i, Question[] QA, PDXObjectImage bubble) throws IOException{
+//		mycontentStream.beginText();
+//		mycontentStream.moveTextPositionByAmount(150 , (715-120*i) );        
+//		mycontentStream.drawString(QA[i].Question );
+//		mycontentStream.endText();
+//		System.out.println("size of question " + QA[i].Question.length());
+//		 
+//		int shiftint = 0;
+//		for(String s: QA[i].PossibleAnswers){ 
+//			mycontentStream.drawImage(bubble, 150, (680-20*shiftint - 120*i));
+//			mycontentStream.beginText();
+//			mycontentStream.moveTextPositionByAmount(170 , (685-20*shiftint - 120*i) );        
+//			mycontentStream.drawString(ReturnQuestionLetter(shiftint) + " " + QA[i].PossibleAnswers[shiftint] );
+//			mycontentStream.endText();
+//			shiftint = shiftint + 1;
+//		}
+//		
+//	}//end of Write Question to PDF
 	
 	
 	

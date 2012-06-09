@@ -237,7 +237,7 @@ public class GradePDF {
        BasicDBObject keys = new BasicDBObject();
        keys.put("ClassName",1);
        keys.put("TestName",1); //to reach into variables you can do -> keys.put("info.x",1);
-       keys.put("PDFTest", 1);//grab id of pdf file
+       keys.put("PDFTest", 1);//tell mongo to grab id of pdf file
        
        String Fileid = null;
        //check databse to see if the test exists!

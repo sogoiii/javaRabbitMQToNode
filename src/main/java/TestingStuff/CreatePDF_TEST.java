@@ -3,12 +3,14 @@ package TestingStuff;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
+import java.awt.Panel;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -29,6 +31,9 @@ import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDJpeg;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
+import org.bson.types.ObjectId;
+import org.jpedal.PdfDecoder;
+import org.jpedal.exception.PdfException;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -39,6 +44,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 
@@ -210,28 +216,55 @@ public class CreatePDF_TEST {
 
 		
 
-        //
+        //create byte outputstream 
 		ByteArrayOutputStream f = new ByteArrayOutputStream(); 
 		//OutputStream fout = new FileOutputStream("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST_Franklin_Gothic_Book_CTV1_16_FOUT.pdf");
 		doc.save(f);//save pdf to f
 		byte[] mar = f.toByteArray();//put f data in to byte array mar //mar should equal the pdf in byte[] form
 		//f.writeTo(fout); //save to fout
-		
+		doc.close();
 	
 		
-		
-
-//		byte[] anarray = doc.
-//		fout.write(anarray);
-//	
+		//save the pdf to the gridfs store 
 		GridFS gfsPhoto = new GridFS(db, "CreatePDFTEST");
 		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
 		gfsFile.setContentType("binary/octet-stream");
 		gfsFile.setFilename("Created PDF File in my test java function 2");
 		gfsFile.save();
-//	
+
+		//now to check, grab the file and save to a file to i know it is working properly!
 		
-		doc.close();
+		GridFSDBFile PDF_FILE = gfsPhoto.findOne(new ObjectId("4fd3ade5c10a331fd5c66301")); //search db for the pdf file //test object ID 
+		InputStream is = PDF_FILE.getInputStream();
+		
+		//use jpedal to read the inputstream and display file in jframe (WORKING AS IS)
+//		PdfDecoder decode_pdf = new PdfDecoder(true);
+//		try {
+//			decode_pdf.openPdfFileFromInputStream(is,true); //open pdf file 
+//		} catch (PdfException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} //file
+//		BufferedImage img = null;
+//		try {
+//			img = decode_pdf.getPageAsImage(2);
+//		} catch (PdfException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		  JFrame frame2 = new JFrame("jpedal buffered image");
+//			Panel panel = new Panel();
+//			frame2.getContentPane().add(new JLabel(new ImageIcon(img)));
+//			frame2.pack();
+////			frame.setLocationRelativeTo(null);
+//			frame2.setVisible(true);
+		
+		
+		
+		//use pddocument to read from inputstream and save to a file (its as if it only loads a portion of the pdf file kinda like the node code that only loaded a partial image...sigh
+		PDDocument fromDBdoc = new PDDocument();
+		fromDBdoc.load(is,true);
+		fromDBdoc.save("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST_Franklin_Gothic_Book_CTV1_16_FROMDB.pdf");
 		
 	
 	}//end of main

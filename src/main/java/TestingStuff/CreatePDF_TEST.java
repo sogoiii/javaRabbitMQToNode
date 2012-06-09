@@ -143,18 +143,11 @@ public class CreatePDF_TEST {
 		
 		numofquestions = QA.length;
 		System.out.println("num of q = " + numofquestions);
-		PDFont Questionfont = PDType1Font.HELVETICA; //set font of pdf
 		
 		 BufferedImage bubblgeImage = ImageIO.read(new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/LargeBubble2.jpg"));
-		
-//		 PDDocument doc = PDDocument.load(new File("/Users/angellopozo/Documents/workspace/CreatePDF_TestV1/mycreation2.pdf"));
 		 PDDocument doc = new PDDocument();
-//		 doc.addPage( new PDPage() ); //add blank page to doc
-		 
-//	     PDPage page = (PDPage)doc.getDocumentCatalog().getAllPages().get(0);//get first page //at least start here!
-	   
-		 
-		 
+		 PDFont Questionfont = PDType1Font.HELVETICA; //set font of pdf
+
 		 
 		 
 		 JFrame frame = new JFrame(); //window popup 

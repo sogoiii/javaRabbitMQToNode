@@ -111,19 +111,19 @@ public class CreatePDF_TEST {
 		Q7.setPossibleAnswer(Q7PA);
 		
 		Question Q8 = new Question();
-		Q8.setQuestion("Who was the 16th President of the United States?");
+		Q8.setQuestion("Who was the 16th President of the United States? 1111111");
 		Q8.setAnswer("Abraham Lincoln");
 		String[] Q8PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
 		Q8.setPossibleAnswer(Q8PA);
 		
 		Question Q9 = new Question();
-		Q9.setQuestion("Who was the 16th President of the United States?");
+		Q9.setQuestion("Who was the 16th President of the United States? 2222222");
 		Q9.setAnswer("Abraham Lincoln");
 		String[] Q9PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
 		Q9.setPossibleAnswer(Q9PA);
 		
 		Question Q10 = new Question();
-		Q10.setQuestion("Who was the 16th President of the United States?");
+		Q10.setQuestion("Who was the 16th President of the United States? 33333333");
 		Q10.setAnswer("Abraham Lincoln");
 		String[] Q10PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
 		Q10.setPossibleAnswer(Q10PA);
@@ -173,7 +173,7 @@ public class CreatePDF_TEST {
 		     int i = 0;
 		    //CREATE Current PDF Page Loop
 				while(i < 7){
-					String qrCodeText = "Question "+i;
+					String qrCodeText = "Question "+(i+Questionshift);
 			        BufferedImage aQRImage = null; //initialize new bufferedimage, this will be the qrcode
 			        aQRImage = createQRImage(qrCodeText, sizeofQRCode, "png"); //create buffered image of QRCode
 
@@ -190,9 +190,9 @@ public class CreatePDF_TEST {
 			        PDPageContentStream contentStream = new PDPageContentStream(doc, currentpage,true,false); //create write stream
 			        contentStream.drawImage( PDQRImage,0, (650-105*i) ); //write Qrcode onto pdf
 			        contentStream.setFont( Questionfont, 10 );//set font
-			        WriteQuestionToPDF(contentStream, i, QA,bubble);//write the Question, answers, and bubbles
+			        WriteQuestionToPDF(contentStream, i,(i+Questionshift), QA,bubble);//write the Question, answers, and bubbles
 			        
-			        System.out.println("DONE writing question num = "+i);
+			        System.out.println("DONE writing question num = "+ (i + Questionshift));
 			        contentStream.close();//close stream 
 			        remaining--;
 			        i++;
@@ -209,33 +209,26 @@ public class CreatePDF_TEST {
 		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST_Franklin_Gothic_Book_CTV1_16.pdf");
 		
 		
-		// connect to the local database server
-        Mongo m = new Mongo();
-        // get handle to "mydb"
-        DB db = m.getDB( "TESTGRIDFS" );
-
-		
-
-        //create byte outputstream 
-		ByteArrayOutputStream f = new ByteArrayOutputStream(); 
-		//OutputStream fout = new FileOutputStream("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST_Franklin_Gothic_Book_CTV1_16_FOUT.pdf");
-		doc.save(f);//save pdf to f
-		byte[] mar = f.toByteArray();//put f data in to byte array mar //mar should equal the pdf in byte[] form
-		//f.writeTo(fout); //save to fout
-		doc.close();
-	
-		
-		//save the pdf to the gridfs store 
-		GridFS gfsPhoto = new GridFS(db, "CreatePDFTEST");
-		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
-		gfsFile.setContentType("binary/octet-stream");
-		gfsFile.setFilename("Created PDF File in my test java function 2");
-		gfsFile.save();
-
-		//now to check, grab the file and save to a file to i know it is working properly!
-		
-		GridFSDBFile PDF_FILE = gfsPhoto.findOne(new ObjectId("4fd3ade5c10a331fd5c66301")); //search db for the pdf file //test object ID 
-		InputStream is = PDF_FILE.getInputStream();
+//		// connect to the local database server
+//        Mongo m = new Mongo();
+//        // get handle to "mydb"
+//        DB db = m.getDB( "TESTGRIDFS" );
+//        //create byte outputstream 
+//		ByteArrayOutputStream f = new ByteArrayOutputStream(); 
+//		doc.save(f);//save pdf to f
+//		byte[] mar = f.toByteArray();//put f data in to byte array mar //mar should equal the pdf in byte[] form
+//		doc.close();
+//		//save the pdf to the gridfs store 
+//		GridFS gfsPhoto = new GridFS(db, "CreatePDFTEST");
+//		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
+//		gfsFile.setContentType("binary/octet-stream");
+//		gfsFile.setFilename("Created PDF File in my test java function 2");
+//		gfsFile.save();
+//
+//		//now to check, grab the file and save to a file to i know it is working properly!
+//		
+//		GridFSDBFile PDF_FILE = gfsPhoto.findOne(new ObjectId("4fd3ade5c10a331fd5c66301")); //search db for the pdf file //test object ID 
+//		InputStream is = PDF_FILE.getInputStream();
 		
 		//use jpedal to read the inputstream and display file in jframe (WORKING AS IS)
 //		PdfDecoder decode_pdf = new PdfDecoder(true);
@@ -261,10 +254,6 @@ public class CreatePDF_TEST {
 		
 		
 		
-		//use pddocument to read from inputstream and save to a file (its as if it only loads a portion of the pdf file kinda like the node code that only loaded a partial image...sigh
-		PDDocument fromDBdoc = new PDDocument();
-		fromDBdoc.load(is,true);
-		fromDBdoc.save("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST_Franklin_Gothic_Book_CTV1_16_FROMDB.pdf");
 		
 	
 	}//end of main
@@ -309,32 +298,39 @@ public class CreatePDF_TEST {
 	
 	
 	
-	private static void WriteQuestionToPDF(PDPageContentStream mycontentStream, int i, Question[] QA, PDXObjectImage bubble) throws IOException{
-		List<String> linestrings = WriteLine(QA[i].Question);
+	private static void WriteQuestionToPDF(PDPageContentStream mycontentStream, int i, int Qi, Question[] QA, PDXObjectImage bubble) throws IOException{
+		List<String> linestrings = ParseLine(QA[Qi].Question); 
+		String Qnum = Integer.toString(Qi + 1);
 		int linebuff = 0;
+		int numindex = 0;
 	     for(String textline : linestrings){
 //	    	 System.out.println(line);
 	    	 if(linestrings.size() > 1){
 		 		mycontentStream.beginText();
 		 		mycontentStream.moveTextPositionByAmount(105 , ((735)-(105*i-linebuff))); //position of the question text 
+		 		if(numindex == 0){
+		 			mycontentStream.drawString(Qnum + ". ");
+		 		}
 		 		mycontentStream.drawString(textline);
 		 		mycontentStream.endText();
 	 			linebuff = linebuff - 15 ;
+	 			numindex++;
 	 		  }//end of if
 	    	 else{
-			 		mycontentStream.beginText();
-			 		mycontentStream.moveTextPositionByAmount(105 , ((725-linebuff)-(105*i-linebuff))); //position of the question text 
-			 		mycontentStream.drawString(textline);
-			 		mycontentStream.endText();
+		 		mycontentStream.beginText();
+		 		mycontentStream.moveTextPositionByAmount(105 , ((725-linebuff)-(105*i-linebuff))); //position of the question text 
+		 		mycontentStream.drawString(Qnum + ". ");
+		 		mycontentStream.drawString(textline);
+		 		mycontentStream.endText();
 	    	 }
 	     }//end of linestring for
 	     
 		int shiftint = 0;
-		for(String s: QA[i].PossibleAnswers){ 
+		for(String s: QA[Qi].PossibleAnswers){ 
 			mycontentStream.drawImage(bubble, 100, (700-18*shiftint - 105*i)); //position of the bubble
 			mycontentStream.beginText();
 			mycontentStream.moveTextPositionByAmount(125 , (705-18*shiftint - 105*i) );//position of the possible answer text        //var*shiftint : var i the distance between questions
-			mycontentStream.drawString(ReturnQuestionLetter(shiftint) + " " + QA[i].PossibleAnswers[shiftint] );
+			mycontentStream.drawString(ReturnQuestionLetter(shiftint) + " " + QA[Qi].PossibleAnswers[shiftint] );
 			mycontentStream.endText();
 			shiftint = shiftint + 1;
 		}//end of possible answers for loop	
@@ -345,7 +341,7 @@ public class CreatePDF_TEST {
 	
 	
 	
-	private static List<String> WriteLine(String Text){		
+	private static List<String> ParseLine(String Text){		
 		//check for how long a line 
 		String[] olines = new String[3];
 		List<String> output = new ArrayList();

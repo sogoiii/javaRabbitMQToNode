@@ -5,8 +5,11 @@ import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -17,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.io.RandomAccessFileInputStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
@@ -32,6 +36,10 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.mongodb.DB;
+import com.mongodb.Mongo;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSInputFile;
 
 
 
@@ -157,7 +165,7 @@ public class CreatePDF_TEST {
 		     System.out.println("Created page " + pageindex);
 		     System.out.println("remaining =  " + remaining);
 		     int i = 0;
-		    //CREATE THE PDF MAIN LOOP
+		    //CREATE Current PDF Page Loop
 				while(i < 7){
 					String qrCodeText = "Question "+i;
 			        BufferedImage aQRImage = null; //initialize new bufferedimage, this will be the qrcode
@@ -193,6 +201,36 @@ public class CreatePDF_TEST {
 	     }//end of fir while loop for pages
 
 		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST_Franklin_Gothic_Book_CTV1_16.pdf");
+		
+		
+		// connect to the local database server
+        Mongo m = new Mongo();
+        // get handle to "mydb"
+        DB db = m.getDB( "TESTGRIDFS" );
+
+		
+
+        //
+		ByteArrayOutputStream f = new ByteArrayOutputStream(); 
+		//OutputStream fout = new FileOutputStream("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST_Franklin_Gothic_Book_CTV1_16_FOUT.pdf");
+		doc.save(f);//save pdf to f
+		byte[] mar = f.toByteArray();//put f data in to byte array mar //mar should equal the pdf in byte[] form
+		//f.writeTo(fout); //save to fout
+		
+	
+		
+		
+
+//		byte[] anarray = doc.
+//		fout.write(anarray);
+//	
+		GridFS gfsPhoto = new GridFS(db, "CreatePDFTEST");
+		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
+		gfsFile.setContentType("binary/octet-stream");
+		gfsFile.setFilename("Created PDF File in my test java function 2");
+		gfsFile.save();
+//	
+		
 		doc.close();
 		
 	

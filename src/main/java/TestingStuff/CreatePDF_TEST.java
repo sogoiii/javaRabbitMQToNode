@@ -65,7 +65,7 @@ public class CreatePDF_TEST {
 	public static void main(String[] args) throws WriterException, IOException, COSVisitorException {
 		
 		//questions These will come from the database in probably in BSON if mongoDB, JSON if CouchDB
-		int numofquestions = 7; 
+//		int numofquestions = 7; 
 		
 		Question Q1 = new Question();
 		Q1.setQuestion("Who was the First President of the United States?");
@@ -141,7 +141,7 @@ public class CreatePDF_TEST {
 		QA[8] = Q9;
 		QA[9] = Q10;
 		
-		numofquestions = QA.length;
+		int numofquestions = QA.length;
 		System.out.println("num of q = " + numofquestions);
 		
 		 BufferedImage bubblgeImage = ImageIO.read(new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/LargeBubble2.jpg"));
@@ -173,11 +173,11 @@ public class CreatePDF_TEST {
 			        PDXObjectImage PDQRImage = new PDJpeg(doc, aQRImage); //make image object for PDFbox
 			        BufferedImage testtest = PDQRImage.getRGBImage();
 			        
-				       frame.getContentPane().setLayout(new FlowLayout());
-				       frame.getContentPane().add(new JLabel(new ImageIcon(testtest)));
-				       frame.pack();
-				       frame.setVisible(true);
-			        
+//				       frame.getContentPane().setLayout(new FlowLayout());
+//				       frame.getContentPane().add(new JLabel(new ImageIcon(testtest)));
+//				       frame.pack();
+//				       frame.setVisible(true);
+//			        
 			        
 			        PDXObjectImage bubble = new PDJpeg(doc, bubblgeImage); //make image object for PDFbox
 			        PDPageContentStream contentStream = new PDPageContentStream(doc, currentpage,true,false); //create write stream

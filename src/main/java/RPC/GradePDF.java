@@ -193,7 +193,7 @@ public class GradePDF {
                              .correlationId(correlationId)
                              .build();
 
-//                         waiting(3000);
+                         waiting(3000);
                          calledtimes++;
                          //String senttonode = new String("{\"cool\":\""+ calledtimes+ "\"}" );
                          String senttonode = new String("fromjava");

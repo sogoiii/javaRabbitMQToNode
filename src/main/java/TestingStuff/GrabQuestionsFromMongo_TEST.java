@@ -24,12 +24,18 @@ import com.mongodb.MongoException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.util.PDFText2HTML;
 
 public class GrabQuestionsFromMongo_TEST {
 	
 	
 	
-	public static void main(String[] args) throws MongoException, JsonParseException, JsonMappingException, UnsupportedEncodingException, IOException {
+	public static void main(String[] args) throws MongoException, JsonParseException, JsonMappingException, UnsupportedEncodingException, IOException, COSVisitorException {
 		
 		Mongo m = new Mongo();
 		DB db = m.getDB("ecomm_database");
@@ -46,32 +52,87 @@ public class GrabQuestionsFromMongo_TEST {
         DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) , keys ); //the actual mongo query
         System.out.println("Questions and answers = " + QuestionObjects);
         
+        //grab data from json object
         JsonNode rootNode = mapper.readValue(QuestionObjects.toString().getBytes("UTF-8"), JsonNode.class);
         JsonNode Questions = rootNode.get("Questions");
 //        String Q0 = new String(Questions.get(0).get("_id").get("$oid").getTextValue());
-        String Q0_question = new String(Questions.get(0).get("Questionhtml").getTextValue());
-        System.out.println("Question Html  = " + Q0_question);
+//        String Q0_question = new String(Questions.get(0).get("Questionhtml").getTextValue()); //grab the question 
+//        String Q0_PA1 = new String(Questions.get(0).get("CorrectAnswertext").getTextValue()); //grab correct answer
+//        String Q0_WA1 = new String(Questions.get(0).get("WrongAnswers").get(0).get("WrongAnswertext").getTextValue()); //grab correct answer
+//        String Q0_WA2 = new String(Questions.get(0).get("WrongAnswers").get(1).get("WrongAnswertext").getTextValue()); //grab correct answer
+//        String Q0_WA3 = new String(Questions.get(0).get("WrongAnswers").get(2).get("WrongAnswertext").getTextValue()); //grab correct answer
+////        String Q0_WA4 = new String(Questions.get(0).get("WrongAnswers").get(3).get("WrongAnswertext").getTextValue()); //grab correct answer
+////        System.out.println("Question Html  = " + Q0_question);
+//        String unesc = StringEscapeUtils.unescapeHtml(Q0_question); // re-enter real html code from escaped html code
+//        System.out.println("Question Str   = " + unesc);
+////        Q0_PA1 = StringEscapeUtils.unescapeHtml(Q0_PA1);
+//        System.out.println("Question Correct Answer   = " + Q0_PA1);
+////        Q0_WA1 = StringEscapeUtils.unescapeHtml(Q0_WA1);
+//        System.out.println("Question Wrong Answer   = " + Q0_WA1);
+////        Q0_WA2 = StringEscapeUtils.unescapeHtml(Q0_WA2);
+//        System.out.println("Question Wrong Answer   = " + Q0_WA2);       
+////        Q0_WA3 = StringEscapeUtils.unescapeHtml(Q0_WA3);
+//        System.out.println("Question Wrong Answer   = " + Q0_WA3);       
+////        Q0_WA4 = StringEscapeUtils.unescapeHtml(Q0_WA4);
+////        System.out.println("Question Wrong Answer   = " + Q0_WA4);      
         
-       String out = Q0_question.replaceAll("&lt;", "<");
-//        String out1 = out.replace("&gt;", ">");
-        System.out.println("Question Str   = " + Q0_question);
-        
-        String unesc = StringEscapeUtils.unescapeHtml(Q0_question);
-     
-        
-//        StringUtils.replaceEach(Q0_question, new String[]{"&amp;", "&quot;", "&lt;", "&gt;"}, new String[]{"&", "\"", "<", ">"});
-        System.out.println("Question Str   = " + unesc);
+//        int Q_num = Questions.size();
+//        int WA_num = Questions.get(0).get("WrongAnswers").size();
+//        System.out.println("num of wrong answers = " + WA_num);
+//        System.out.println("number of questions  = " + Q_num);
         
         
+        Question[] QA = new Question[(Questions.size() +1)];	
         
-//        URLDecoder urldecode= new URLDecoder();
-//        System.out.println(urldecode.decode(Q0_question,"/&lt;/ig"));
+        for(int i = 0; i < Questions.size(); i++ ){ //i is the question number
+        	
+        	
+        	Question Q = new Question();
+        	
+        	String Quest = new String(Questions.get(i).get("Questionhtml").getTextValue()); //grab the question 
+        	Q.setQuestion(StringEscapeUtils.unescapeHtml(Quest));
+    		String CA = new String(Questions.get(i).get("CorrectAnswertext").getTextValue()); //grab correct answer
+    		Q.setAnswer(CA);
+        	
+    		System.out.println("Question = " + Q.Question);
+    		System.out.println("Answer = " + Q.Answer);
+        	int WA_num = Questions.get(i).get("WrongAnswers").size();
+        	String[] WAA = new String[WA_num];
+        	for(int j = 0; j < WA_num; j++){    		
+        		WAA[j] = new String(Questions.get(i).get("WrongAnswers").get(j).get("WrongAnswertext").getTextValue()); //grab wrong answer
+        		System.out.println("Wrong Answer = " + WAA[j]);
+        	}//possible answers for loop
+        	Q.setPossibleAnswer(WAA); //pt wrong answer array in Possibel answer array of question i
+        	QA[i] = Q;
+        }//end of num questions for loop
         
-//        String out1 = forXML(Q0_question);
-//        String out2 = forXML(out1);
-//        System.out.println("Question Str   = " + out1);
-//        System.out.println("Question Str   = " + out2);
-		
+        
+        
+        
+        //missing step of remonving html code (i didnt do it because its currently unnecessary to move forward
+//        String nohtml = unesc.replaceAll("<*>",  " ");
+//        System.out.println("no html    = " + nohtml);
+        
+        
+        
+//        //create pdf
+//        PDDocument doc = new PDDocument();
+//        doc.addPage( new PDPage() );
+//        PDPage currentpage = (PDPage)doc.getDocumentCatalog().getAllPages().get(0);//get current page
+//        PDPageContentStream contentStream = new PDPageContentStream(doc, currentpage,true,true); //create write stream
+//        PDFText2HTML s = new PDFText2HTML(unesc);
+//        contentStream.setFont( PDType1Font.HELVETICA, 10 );//set font
+//        
+//        contentStream.beginText();
+//	    contentStream.moveTextPositionByAmount(100, 700); // from bottom left (x,y)
+//	    contentStream.drawString(unesc);
+//	    contentStream.endText();
+//	    contentStream.close();
+//        doc.save("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedQUESION.pdf");
+        
+        
+        
+        
 	}//end of main
 
 	

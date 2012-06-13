@@ -21,6 +21,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.io.RandomAccessFileInputStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -32,6 +33,8 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDJpeg;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.bson.types.ObjectId;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.jpedal.PdfDecoder;
 import org.jpedal.exception.PdfException;
 
@@ -41,7 +44,10 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
@@ -55,7 +61,7 @@ import com.mongodb.gridfs.GridFSInputFile;
 
 
 
-public class CreatePDF_TEST {
+public class CreatePDF2_Test {
 	
 	static int sizeofQRCode = 100; //this is the size of the QR code 
 
@@ -65,82 +71,56 @@ public class CreatePDF_TEST {
 	public static void main(String[] args) throws WriterException, IOException, COSVisitorException {
 		
 		//questions These will come from the database in probably in BSON if mongoDB, JSON if CouchDB
-//		int numofquestions = 7; 
+
 		
-		Question Q1 = new Question();
-		Q1.setQuestion("Who was the First President of the United States?");
-		Q1.setAnswer("George Washington");
-		String[] Q1PA = {"Thomas Jefferson","Madison", "Benjamin Franklin"};
-		Q1.setPossibleAnswer(Q1PA);
-		
-		Question Q2 = new Question();
-		Q2.setQuestion("Who was the 16th President of the United States?");
-		Q2.setAnswer("Abraham Lincoln");
-		String[] Q2PA = {"Anderw Johnson","Franklin Pierce", "John Tayler", "whowhatnow?"};
-		Q2.setPossibleAnswer(Q2PA);
-		
-		Question Q3 = new Question();
-		Q3.setQuestion("Got response code 502 with body Bad response. The server or forwarder response doesn't look like HTTP.");
-		Q3.setAnswer("Abraham Lincoln");
-		String[] Q3PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
-		Q3.setPossibleAnswer(Q3PA);
-		
-		Question Q4 = new Question();
-		Q4.setQuestion("you can convert it to a BufferedImage by copying its raster to a new BufferedImage. Serach for 'convert image to bufferedimage' ");
-		Q4.setAnswer("Abraham Lincoln");
-		String[] Q4PA = {"Anderw Johnson","Music video by Coldplay performing Paradise. (C) 2011 EMI Records Ltd This label copy information is the subject of copyright protection.", "John Tayler"};
-		Q4.setPossibleAnswer(Q4PA);
-		
-		Question Q5 = new Question();
-		Q5.setQuestion("Who was the 16th President of the United States?");
-		Q5.setAnswer("Abraham Lincoln");
-		String[] Q5PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
-		Q5.setPossibleAnswer(Q5PA);
+		Mongo m = new Mongo();
+		DB db = m.getDB("ecomm_database");
+		DBCollection coll = db.getCollection("testschemas");
 		
 		
-		Question Q6 = new Question();
-		Q6.setQuestion("Who was the 16th President of the United States?");
-		Q6.setAnswer("Abraham Lincoln");
-		String[] Q6PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
-		Q6.setPossibleAnswer(Q6PA);
 		
-		Question Q7 = new Question();
-		Q7.setQuestion("Who was the 16th President of the United States?");
-		Q7.setAnswer("Abraham Lincoln");
-		String[] Q7PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
-		Q7.setPossibleAnswer(Q7PA);
-		
-		Question Q8 = new Question();
-		Q8.setQuestion("Who was the 16th President of the United States? 1111111");
-		Q8.setAnswer("Abraham Lincoln");
-		String[] Q8PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
-		Q8.setPossibleAnswer(Q8PA);
-		
-		Question Q9 = new Question();
-		Q9.setQuestion("Who was the 16th President of the United States? 2222222");
-		Q9.setAnswer("Abraham Lincoln");
-		String[] Q9PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
-		Q9.setPossibleAnswer(Q9PA);
-		
-		Question Q10 = new Question();
-		Q10.setQuestion("Who was the 16th President of the United States? 33333333");
-		Q10.setAnswer("Abraham Lincoln");
-		String[] Q10PA = {"Anderw Johnson","Franklin Pierce", "John Tayler"};
-		Q10.setPossibleAnswer(Q10PA);
+		ObjectMapper mapper = new ObjectMapper(); 
 		
 		
-		Question[] QA = new Question[10];		
-		QA[0] = Q1;
-		QA[1] = Q2;
-		QA[2] = Q3;
-		QA[3] = Q4;
-		QA[4] = Q5;
-		QA[5] = Q6;
-		QA[6] = Q7;
-		QA[7] = Q8;
-		QA[8] = Q9;
-		QA[9] = Q10;
+		String message = "4fcabbe1d41f228a4c000088"; //test id, that i will have in the real version
+//		BasicDBObject keys = new BasicDBObject(); //create search object, keys will be what is returned
+//        keys.put("Questions",1); //tell mongo to grab key, this is still a setup
+//        DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) , keys ); //the actual mongo query
+		DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) ); //the actual mongo query
+        System.out.println("Questions and answers = " + QuestionObjects);
+        
+        //grab data from json object
+        JsonNode rootNode = mapper.readValue(QuestionObjects.toString().getBytes("UTF-8"), JsonNode.class);
+        JsonNode Questions = rootNode.get("Questions");
 		
+	
+		
+	       Question[] QA = new Question[(Questions.size())];	
+	        
+	        for(int i = 0; i < Questions.size(); i++ ){ //i is the question number
+	        	
+	        	
+	        	Question Q = new Question();
+	        	
+	        	String Quest = new String(Questions.get(i).get("Questionhtml").getTextValue()); //grab the question 
+	        	Q.setQuestion(StringEscapeUtils.unescapeHtml(Quest));
+	    		String CA = new String(Questions.get(i).get("CorrectAnswertext").getTextValue()); //grab correct answer
+	    		Q.setAnswer(CA);
+	        	
+	    		System.out.println("Question = " + Q.Question);
+	    		System.out.println("Answer = " + Q.Answer);
+	        	int WA_num = Questions.get(i).get("WrongAnswers").size();
+	        	String[] WAA = new String[WA_num];
+	        	for(int j = 0; j < WA_num; j++){    		
+	        		WAA[j] = new String(Questions.get(i).get("WrongAnswers").get(j).get("WrongAnswertext").getTextValue()); //grab wrong answer
+	        		System.out.println("Wrong Answer = " + WAA[j]);
+	        	}//possible answers for loop
+	        	Q.setPossibleAnswer(WAA); //pt wrong answer array in Possibel answer array of question i
+	        	QA[i] = Q;
+	        }//end of num questions for loop
+	        
+		
+
 		int numofquestions = QA.length;
 		System.out.println("num of q = " + numofquestions);
 		
@@ -165,7 +145,7 @@ public class CreatePDF_TEST {
 		     System.out.println("remaining =  " + remaining);
 		     int i = 0;
 		    //CREATE Current PDF Page Loop
-				while(i < 7){
+				while(i < 7 || remaining != 0){ //remaining is here incase the number of quetions is less than 7
 					String qrCodeText = "Question "+(i+Questionshift);
 			        BufferedImage aQRImage = null; //initialize new bufferedimage, this will be the qrcode
 			        aQRImage = createQRImage(qrCodeText, sizeofQRCode, "png"); //create buffered image of QRCode
@@ -188,6 +168,7 @@ public class CreatePDF_TEST {
 			        System.out.println("DONE writing question num = "+ (i + Questionshift));
 			        contentStream.close();//close stream 
 			        remaining--;
+			        System.out.println("remainign = " + remaining);
 			        i++;
 			        if(remaining == 0){
 			        	break;
@@ -199,28 +180,60 @@ public class CreatePDF_TEST {
 			
 	     }//end of fir while loop for pages
 
-		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TEST_Franklin_Gothic_Book_CTV1_16.pdf");
+		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test.pdf"); //save to my file system so i can see it
 		
 		
 		
+        //create byte outputstream 
+		ByteArrayOutputStream f = new ByteArrayOutputStream(); 
+		doc.save(f);//save pdf to f
+		byte[] mar = f.toByteArray();//put f data in to byte array mar //mar should equal the pdf in byte[] form
+		doc.close(); //close the pdf document, free up memory?
 		
-		
-//		// connect to the local database server
-//        Mongo m = new Mongo();
-//        // get handle to "mydb"
-//        DB db = m.getDB( "TESTGRIDFS" );
-//        //create byte outputstream 
-//		ByteArrayOutputStream f = new ByteArrayOutputStream(); 
-//		doc.save(f);//save pdf to f
-//		byte[] mar = f.toByteArray();//put f data in to byte array mar //mar should equal the pdf in byte[] form
-//		doc.close();
-//		//save the pdf to the gridfs store 
-//		GridFS gfsPhoto = new GridFS(db, "CreatePDFTEST");
-//		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
-//		gfsFile.setContentType("binary/octet-stream");
-//		gfsFile.setFilename("Created PDF File in my test java function 2");
+		//save the pdf to the gridfs store 
+		GridFS gfsPhoto = new GridFS(db, "fs");
+		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
+		gfsFile.setContentType("binary/octet-stream");
+		gfsFile.setFilename("CreatedPDF_Mongo_Test3.pdf");
 //		gfsFile.save();
+//		System.out.println("objectid of new file = " + gfsFile.getId());
+		
+
+		
+	
+		ArrayList CreatedPDF = new ArrayList(); //create the array of data 
+		
+//        BasicDBObject PDFData = new BasicDBObject(); //createpdf object from gridfs //i wonder if i can simply add gfsFile to the arary list...hmmm
+//        //put stuff into the object
+//        PDFData.put("aliases", gfsFile.getAliases());
+//        PDFData.put("chunkSize", gfsFile.getChunkSize());
+//        PDFData.put("contentType", gfsFile.getContentType());
+//        PDFData.put("lenght", gfsFile.getLength());
+//        PDFData.put("md5", gfsFile.getMD5());
+//        PDFData.put("uploadDate", gfsFile.getUploadDate());
+//        
+//        BasicDBObject metadata = new BasicDBObject(); //metadata object
+//        metadata.put("filename", gfsFile.getFilename());
+//        
+//        PDFData.put("metadata", metadata); //put metadata json into PDFData
 //
+//        CreatedPDF.add(PDFData); //put the above constructed PDFData into the createdPDF json object
+//        QuestionObjects.put("CreatedPDF", CreatedPDF);
+		
+		CreatedPDF.add(gfsFile);
+        QuestionObjects.put("CreatedPDF", CreatedPDF);
+		
+        coll.save(QuestionObjects); //save into mongodb?
+        
+        
+
+        
+        
+		//grab the file id of the newly created fs.files collection and put it into the test schema
+		
+		
+		
+
 //		//now to check, grab the file and save to a file to i know it is working properly!
 //		
 //		GridFSDBFile PDF_FILE = gfsPhoto.findOne(new ObjectId("4fd3ade5c10a331fd5c66301")); //search db for the pdf file //test object ID 
@@ -397,35 +410,6 @@ public class CreatePDF_TEST {
 	}//end of RETURNQUESTIONLETTER
 	
 	
-	
-//	private static BufferedImage createQRImage(File qrFile, String qrCodeText, int size, String fileType) throws WriterException, IOException {
-//	        // Create the ByteMatrix for the QR-Code that encodes the given String
-//	        Hashtable hintMap = new Hashtable();
-//	        hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
-//	        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-//	        BitMatrix byteMatrix = qrCodeWriter.encode(qrCodeText,
-//	                BarcodeFormat.QR_CODE, size, size, hintMap);
-//	        // Make the BufferedImage that are to hold the QRCode
-//	        int matrixWidth = byteMatrix.getWidth();
-//	        BufferedImage image = new BufferedImage(matrixWidth, matrixWidth, BufferedImage.TYPE_INT_RGB);
-//	        image.createGraphics();
-//	 
-//	        Graphics2D graphics = (Graphics2D) image.getGraphics();
-//	        graphics.setColor(Color.WHITE);
-//	        graphics.fillRect(0, 0, matrixWidth, matrixWidth);
-//	        // Paint and save the image using the ByteMatrix
-//	        graphics.setColor(Color.BLACK);
-//	 
-//	        for (int i = 0; i < matrixWidth; i++) {
-//	            for (int j = 0; j < matrixWidth; j++) {
-//	                if (byteMatrix.get(i, j)) {
-//	                    graphics.fillRect(i, j, 1, 1);
-//	                }
-//	            }
-//	        }
-//	        ImageIO.write(image, fileType, qrFile);
-//	        return image;
-//	    }//end of CreateQRImage
 	
 	
 	private static BufferedImage createQRImage(String qrCodeText, int size, String fileType) throws WriterException, IOException {

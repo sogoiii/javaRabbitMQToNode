@@ -92,7 +92,7 @@ public class GradingWorker {
 	
 	
 	
-	public void Grader(InputStream is) throws IOException, InterruptedException, IM4JavaException, PdfException{
+	public void Grader(InputStream is) throws IOException, InterruptedException, IM4JavaException, PdfException{ //is - is the inputstream of the pdf file
 		System.out.println("inside grader");
 		
 		 //workign with jpedal, will read from inputstream

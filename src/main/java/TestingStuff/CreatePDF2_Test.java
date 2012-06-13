@@ -82,21 +82,23 @@ public class CreatePDF2_Test {
 		ObjectMapper mapper = new ObjectMapper(); 
 		
 		
-		String message = "4fcb04912aa0b2da64000064"; //test id, that i will have in the real version
+		String message = "4fd8d74675689700000000f3"; //test id, that i will have in the real version
 //		BasicDBObject keys = new BasicDBObject(); //create search object, keys will be what is returned
 //        keys.put("Questions",1); //tell mongo to grab key, this is still a setup
 //        DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) , keys ); //the actual mongo query
-		DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) ); //the actual mongo query
+		DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
         System.out.println("Questions and answers = " + QuestionObjects);
         
         //grab data from json object
         JsonNode rootNode = mapper.readValue(QuestionObjects.toString().getBytes("UTF-8"), JsonNode.class);
         JsonNode Questions = rootNode.get("Questions");
-		
+        JsonNode toplvl = rootNode.get("NumberOfStudents");
 	
 		//These loops will create a Question Object for every question in the QuestionObjects that was grabbed using the objectID fo the test we wanted
 	       Question[] QA = new Question[(Questions.size())];	
-	        
+	       int numofstudents = rootNode.get("NumberOfStudents").getIntValue(); //grab the question 
+	       System.out.println("Numer of students = " + numofstudents);
+	       
 	        for(int i = 0; i < Questions.size(); i++ ){ //i is the question number
 	        	
 	        	
@@ -131,55 +133,61 @@ public class CreatePDF2_Test {
 		 
 		 
 		 JFrame frame = new JFrame(); //window popup //for debuggin
-	     int remaining = numofquestions; //number of questions written = remaining
-	     int pageindex = 0; //this is the number of pages
-	     int Questionshift = 0; //
-	     while(remaining > 0){
-	     
-		     doc.addPage( new PDPage() ); //add blank page to doc
-		     System.out.println("pageindex  = " + pageindex);
-		     PDPage currentpage = (PDPage)doc.getDocumentCatalog().getAllPages().get(pageindex);//get current page
-		     WriteTitleToPDF( doc, currentpage); //write test title on top of page
-		     
-		     System.out.println("Created page " + pageindex);
-		     System.out.println("remaining =  " + remaining);
-		     int i = 0;
-		    //CREATE Current PDF Page Loop
-				while(i < 7 || remaining != 0){ //remaining is here incase the number of quetions is less than 7
-					String qrCodeText = "Question "+(i+Questionshift);
-			        BufferedImage aQRImage = null; //initialize new bufferedimage, this will be the qrcode
-			        aQRImage = createQRImage(qrCodeText, sizeofQRCode, "png"); //create buffered image of QRCode
-
-			        PDXObjectImage PDQRImage = new PDJpeg(doc, aQRImage); //make image object for PDFbox
-			        BufferedImage testtest = PDQRImage.getRGBImage();
-			        
-//				       frame.getContentPane().setLayout(new FlowLayout());
-//				       frame.getContentPane().add(new JLabel(new ImageIcon(testtest)));
-//				       frame.pack();
-//				       frame.setVisible(true);
-//			        
-			        
-			        PDXObjectImage bubble = new PDJpeg(doc, bubblgeImage); //make image object for PDFbox
-			        PDPageContentStream contentStream = new PDPageContentStream(doc, currentpage,true,false); //create write stream
-			        contentStream.drawImage( PDQRImage,0, (650-105*i) ); //write Qrcode onto pdf
-			        contentStream.setFont( Questionfont, 10 );//set font
-			        WriteQuestionToPDF(contentStream, i,(i+Questionshift), QA,bubble);//write the Question, answers, and bubbles
-			        
-			        System.out.println("DONE writing question num = "+ (i + Questionshift));
-			        contentStream.close();//close stream 
-			        remaining--;
-			        System.out.println("remainign = " + remaining);
-			        i++;
-			        if(remaining == 0){
-			        	break;
-			        }
-				}//end of second while loop     
-			pageindex++; //increment next page
-			Questionshift = Questionshift + 7;
-			System.out.println("questionshift = " + Questionshift); 
-			
-	     }//end of fir while loop for pages
-
+		 
+		 int studentindex = 0;
+		 int studetpageindex = 0;
+		 for(int x = 0; x < numofstudents; x++){
+		     int remaining = numofquestions; //number of questions written = remaining
+		     int pageindex = 0 + studetpageindex; //this is the number of pages plus the student page index so the test can be recreated for each student
+		     int Questionshift = 0; //
+		     while(remaining > 0){
+		      
+			     doc.addPage( new PDPage() ); //add blank page to doc
+			     System.out.println("pageindex  = " + pageindex);
+			     PDPage currentpage = (PDPage)doc.getDocumentCatalog().getAllPages().get(pageindex);//get current page
+			     WriteTitleToPDF( doc, currentpage); //write test title on top of page
+			     
+			     System.out.println("Created page " + pageindex);
+			     System.out.println("remaining =  " + remaining);
+			     int i = 0;
+			    //CREATE Current PDF Page Loop
+					while(i < 7 || remaining < 0){ //remaining is here incase the number of quetions is less than 7
+						String qrCodeText = "Question "+(i+Questionshift);
+				        BufferedImage aQRImage = null; //initialize new bufferedimage, this will be the qrcode
+				        aQRImage = createQRImage(qrCodeText, sizeofQRCode, "png"); //create buffered image of QRCode
+	
+				        PDXObjectImage PDQRImage = new PDJpeg(doc, aQRImage); //make image object for PDFbox
+				        BufferedImage testtest = PDQRImage.getRGBImage();
+				        
+	//				       frame.getContentPane().setLayout(new FlowLayout());
+	//				       frame.getContentPane().add(new JLabel(new ImageIcon(testtest)));
+	//				       frame.pack();
+	//				       frame.setVisible(true);
+	//			        
+				        
+				        PDXObjectImage bubble = new PDJpeg(doc, bubblgeImage); //make image object for PDFbox
+				        PDPageContentStream contentStream = new PDPageContentStream(doc, currentpage,true,false); //create write stream
+				        contentStream.drawImage( PDQRImage,0, (650-105*i) ); //write Qrcode onto pdf
+				        contentStream.setFont( Questionfont, 10 );//set font
+				        WriteQuestionToPDF(contentStream, i,(i+Questionshift), QA,bubble);//write the Question, answers, and bubbles
+				        
+				        System.out.println("DONE writing question num = "+ (i + Questionshift));
+				        contentStream.close();//close stream 
+				        remaining--;
+				        System.out.println("remainign = " + remaining);
+				        i++;
+				        if(remaining == 0){
+				        	break;
+				        }
+					}//end of second while loop     
+				pageindex++; //increment next page
+				Questionshift = Questionshift + 7;
+				System.out.println("questionshift = " + Questionshift); 
+				
+		     }//end of fir while loop for pages
+		     studetpageindex = studetpageindex + pageindex;
+		     studentindex++; //add to student index
+		 }//end of numofstudents for loop
 		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test.pdf"); //save to my file system so i can see it
 		
 		

@@ -4,8 +4,8 @@ package TestingStuff;
 
 public class Question{
 
-	String Question, Answer;
-	String[] PossibleAnswers;
+	public String Question, Answer;
+	public String[] PossibleAnswers;
 	
 	
 	public  void setQuestion(String Q){

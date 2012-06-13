@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 
+import Workers.CreatePDFWorker;
 import Workers.GradingWorker;
 
 import com.rabbitmq.client.ConnectionFactory;
@@ -29,6 +30,7 @@ import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.AMQP;
 
 
+import com.google.zxing.WriterException;
 import com.mongodb.Mongo;
 import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
@@ -68,7 +70,7 @@ public class CreatePDF {
 	static GridFS gfsPhoto = null;  // gridfs interfance
 	static GridFS gfsTestPDF = null; //gridfs object
 	static Mongo m = null; //mongo connection
-	static GradingWorker ActiveGrader = null; //grading instance
+	static CreatePDFWorker ActivePDFCreator = null; //grading instance
 	
     public static void main(String [] args) throws MongoException, JsonProcessingException, IOException {
         System.out.println("GradePDF: initializing");
@@ -110,7 +112,7 @@ public class CreatePDF {
         
         
        
-        
+     	ActivePDFCreator = new CreatePDFWorker(); //create grading instance 
         mapper = new ObjectMapper(); // can reuse, share globally
         System.out.println("connected to MongoDB");
         try {
@@ -151,18 +153,23 @@ public class CreatePDF {
                          /*
                          	Working code is below NOTE: may want to do this inside a try catch and then finally so i send something back if anything happens here
                          */
-                        
                          long lStartTime = new Date().getTime(); //start time
+                         
+                         try {
+							ActivePDFCreator.Create(message, m);
+						} catch (COSVisitorException e) { //on any catch return to user, add text so that they get an error? so that they can tell us again later?
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (WriterException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} //create pdf with the message = testid
+                         
+                         
+                        
                          long lEndTime = new Date().getTime(); //end time
                          long difference = lEndTime - lStartTime; //check different
                          System.out.println("Elapsed milliseconds: " + difference);
-                         
-                         
-                         
-                         
-                         
-                         
-                         
                          System.out.println("Done with computational code!");
                          /*
                       		Working code Done now return to User

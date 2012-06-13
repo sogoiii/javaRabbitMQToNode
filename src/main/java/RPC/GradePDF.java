@@ -254,7 +254,7 @@ public class GradePDF {
          
        }
        catch(IllegalArgumentException e) {	 
-      	 System.out.println("Failed to find objectID = '" + message+ "'");
+      	 System.out.println("Failed to find objectID = '" + message + "'");
        }
 		
 		return Fileid;

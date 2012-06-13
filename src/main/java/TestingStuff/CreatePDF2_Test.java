@@ -94,7 +94,7 @@ public class CreatePDF2_Test {
         JsonNode Questions = rootNode.get("Questions");
 		
 	
-		
+		//These loops will create a Question Object for every question in the QuestionObjects that was grabbed using the objectID fo the test we wanted
 	       Question[] QA = new Question[(Questions.size())];	
 	        
 	        for(int i = 0; i < Questions.size(); i++ ){ //i is the question number
@@ -124,13 +124,13 @@ public class CreatePDF2_Test {
 		int numofquestions = QA.length;
 		System.out.println("num of q = " + numofquestions);
 		
-		 BufferedImage bubblgeImage = ImageIO.read(new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/LargeBubble2.jpg"));
-		 PDDocument doc = new PDDocument();
+		 BufferedImage bubblgeImage = ImageIO.read(new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/LargeBubble2.jpg")); //read manually, because it is the bubble object
+		 PDDocument doc = new PDDocument(); //create pdf document
 		 PDFont Questionfont = PDType1Font.HELVETICA; //set font of pdf
 
 		 
 		 
-		 JFrame frame = new JFrame(); //window popup 
+		 JFrame frame = new JFrame(); //window popup //for debuggin
 	     int remaining = numofquestions; //number of questions written = remaining
 	     int pageindex = 0; //this is the number of pages
 	     int Questionshift = 0; //
@@ -190,41 +190,20 @@ public class CreatePDF2_Test {
 		byte[] mar = f.toByteArray();//put f data in to byte array mar //mar should equal the pdf in byte[] form
 		doc.close(); //close the pdf document, free up memory?
 		
-		//save the pdf to the gridfs store 
+//		//save the pdf to the gridfs store 
 		GridFS gfsPhoto = new GridFS(db, "fs");
 		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
 		gfsFile.setContentType("binary/octet-stream");
 		gfsFile.setFilename("CreatedPDF_Mongo_Test3.pdf");
-//		gfsFile.save();
-//		System.out.println("objectid of new file = " + gfsFile.getId());
-		
+		gfsFile.save();
 
 		
-	
+		//save back into our teacherschema json object
 		ArrayList CreatedPDF = new ArrayList(); //create the array of data 
-		
-//        BasicDBObject PDFData = new BasicDBObject(); //createpdf object from gridfs //i wonder if i can simply add gfsFile to the arary list...hmmm
-//        //put stuff into the object
-//        PDFData.put("aliases", gfsFile.getAliases());
-//        PDFData.put("chunkSize", gfsFile.getChunkSize());
-//        PDFData.put("contentType", gfsFile.getContentType());
-//        PDFData.put("lenght", gfsFile.getLength());
-//        PDFData.put("md5", gfsFile.getMD5());
-//        PDFData.put("uploadDate", gfsFile.getUploadDate());
+		CreatedPDF.add(gfsFile);//put gfsfile into the array
+        QuestionObjects.put("CreatedPDF", CreatedPDF); //put it in our json object //this will overide the previous values
+        coll.save(QuestionObjects); //save into mongodb
 //        
-//        BasicDBObject metadata = new BasicDBObject(); //metadata object
-//        metadata.put("filename", gfsFile.getFilename());
-//        
-//        PDFData.put("metadata", metadata); //put metadata json into PDFData
-//
-//        CreatedPDF.add(PDFData); //put the above constructed PDFData into the createdPDF json object
-//        QuestionObjects.put("CreatedPDF", CreatedPDF);
-		
-		CreatedPDF.add(gfsFile);
-        QuestionObjects.put("CreatedPDF", CreatedPDF);
-		
-        coll.save(QuestionObjects); //save into mongodb?
-        
         
 
         
@@ -236,10 +215,10 @@ public class CreatePDF2_Test {
 
 //		//now to check, grab the file and save to a file to i know it is working properly!
 //		
-//		GridFSDBFile PDF_FILE = gfsPhoto.findOne(new ObjectId("4fd3ade5c10a331fd5c66301")); //search db for the pdf file //test object ID 
+//		GridFSDBFile PDF_FILE = gfsPhoto.findOne(new ObjectId("4fd7ef60c10a5b7250617240")); //search db for the pdf file //test object ID 
 //		InputStream is = PDF_FILE.getInputStream();
-		
-		//use jpedal to read the inputstream and display file in jframe (WORKING AS IS)
+//		
+//		//use jpedal to read the inputstream and display file in jframe (WORKING AS IS)
 //		PdfDecoder decode_pdf = new PdfDecoder(true);
 //		try {
 //			decode_pdf.openPdfFileFromInputStream(is,true); //open pdf file 
@@ -249,7 +228,7 @@ public class CreatePDF2_Test {
 //		} //file
 //		BufferedImage img = null;
 //		try {
-//			img = decode_pdf.getPageAsImage(2);
+//			img = decode_pdf.getPageAsImage(1);
 //		} catch (PdfException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
@@ -260,7 +239,7 @@ public class CreatePDF2_Test {
 //			frame2.pack();
 ////			frame.setLocationRelativeTo(null);
 //			frame2.setVisible(true);
-		
+//		
 		
 		
 		

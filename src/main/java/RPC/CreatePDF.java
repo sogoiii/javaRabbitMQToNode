@@ -155,8 +155,13 @@ public class CreatePDF {
                          */
                          long lStartTime = new Date().getTime(); //start time
                          
+                         Map<String, Object> ReceivedMessage = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
+//                       System.out.println(userInMap.get("testid"));
+
+                         String idString = (String) ReceivedMessage.get("testid");
+                         String pdfID = null;
                          try {
-							ActivePDFCreator.Create(message, m);
+                        	 pdfID = ActivePDFCreator.Create(idString, m);
 						} catch (COSVisitorException e) { //on any catch return to user, add text so that they get an error? so that they can tell us again later?
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -184,8 +189,8 @@ public class CreatePDF {
                          
                          calledtimes++;
                          //String senttonode = new String("{\"cool\":\""+ calledtimes+ "\"}" );
-                         String senttonode = new String("fromjava");
-                         channel.basicPublish("", responseQueue, b,senttonode.getBytes("UTF-8"));
+                         String senttonode = new String(pdfID);
+                         channel.basicPublish("", responseQueue, b, pdfID.getBytes("UTF-8"));
                          channel.basicAck(deliveryTag, false);
                          System.out.println("still inside the rpc java code. ");
                      }

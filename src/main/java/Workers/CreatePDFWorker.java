@@ -52,13 +52,14 @@ import com.mongodb.gridfs.GridFSInputFile;
 public class CreatePDFWorker {
 	static int sizeofQRCode = 100; //this is the size of the QR code 
 	
-	public void Create(String TestID, Mongo m) throws JsonParseException, JsonMappingException, UnsupportedEncodingException, IOException, WriterException, COSVisitorException{
+	public String Create(String TestID, Mongo m) throws JsonParseException, JsonMappingException, UnsupportedEncodingException, IOException, WriterException, COSVisitorException{
 		System.out.println("entered Create, will create file now");
 		
 		//db stuff
 		DB db = m.getDB("ecomm_database");
 		DBCollection coll = db.getCollection("testschemas");
 		
+		System.out.println("TestID = " + TestID);
 		
 		DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(TestID)) ); //the actual mongo query
         System.out.println("Questions and answers = " + QuestionObjects);
@@ -158,17 +159,17 @@ public class CreatePDFWorker {
 		GridFS gfsPhoto = new GridFS(db, "fs");
 		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
 		gfsFile.setContentType("binary/octet-stream");
-		gfsFile.setFilename("CreatedPDF_Mongo_Test3.pdf");
+		gfsFile.setFilename("CreatedPDF_Mongo_Tes_REAL.pdf");
 		gfsFile.save();
-
-		
+		System.out.println("Gridfs file id = " + gfsFile.getId());
+		String pdfid = gfsFile.getId().toString();
 		//save back into our teacherschema json object
 		ArrayList CreatedPDF = new ArrayList(); //create the array of data 
 		CreatedPDF.add(gfsFile);//put gfsfile into the array
         QuestionObjects.put("CreatedPDF", CreatedPDF); //put it in our json object //this will overide the previous values
         coll.save(QuestionObjects); //save into mongodb
 		
-		
+		return pdfid;
 	}//end of Create
 	
 	

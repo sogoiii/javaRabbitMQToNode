@@ -82,7 +82,7 @@ public class CreatePDF2_Test {
 		ObjectMapper mapper = new ObjectMapper(); 
 		
 		
-		String message = "4fcabbe1d41f228a4c000088"; //test id, that i will have in the real version
+		String message = "4fcb04912aa0b2da64000064"; //test id, that i will have in the real version
 //		BasicDBObject keys = new BasicDBObject(); //create search object, keys will be what is returned
 //        keys.put("Questions",1); //tell mongo to grab key, this is still a setup
 //        DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) , keys ); //the actual mongo query

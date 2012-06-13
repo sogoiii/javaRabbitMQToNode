@@ -154,7 +154,7 @@ public class GradePDF {
                          */
                         
                          long lStartTime = new Date().getTime(); //start time
-                         
+                         System.out.println("TestID = " + message);
                          String fileid = GetPDFFileID(message);
                          GridFSDBFile imageForOutput = gfsTestPDF.findOne(new ObjectId(fileid)); //search db for the pdf file
                          InputStream is = imageForOutput.getInputStream();//create inputs stream from result
@@ -225,6 +225,11 @@ public class GradePDF {
 
 
 
+	
+	
+	
+
+	
 
 	public static String GetPDFFileID(String message) throws JsonParseException, JsonMappingException, UnsupportedEncodingException, IOException{
 		

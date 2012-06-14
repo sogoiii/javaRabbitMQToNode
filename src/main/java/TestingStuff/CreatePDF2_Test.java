@@ -96,7 +96,7 @@ public class CreatePDF2_Test {
 	
 		//These loops will create a Question Object for every question in the QuestionObjects that was grabbed using the objectID fo the test we wanted
 	       Question[] QA = new Question[(Questions.size())];	
-	       int numofstudents = rootNode.get("NumberOfStudents").getIntValue(); //grab the question 
+	       int numofstudents = rootNode.get("NumberOfStudents").getIntValue(); //grab the number of students 
 	       System.out.println("Numer of students = " + numofstudents);
 	       
 	        for(int i = 0; i < Questions.size(); i++ ){ //i is the question number
@@ -135,8 +135,10 @@ public class CreatePDF2_Test {
 		 JFrame frame = new JFrame(); //window popup //for debuggin
 		 
 		 int studentindex = 0;
-		 int studetpageindex = 0;
+		 int studetpageindex = 0; //controls the student page recreation
+		 
 		 for(int x = 0; x < numofstudents; x++){
+			 int indivpage = 0;
 		     int remaining = numofquestions; //number of questions written = remaining
 		     int pageindex = 0 + studetpageindex; //this is the number of pages plus the student page index so the test can be recreated for each student
 		     int Questionshift = 0; //
@@ -145,14 +147,15 @@ public class CreatePDF2_Test {
 			     doc.addPage( new PDPage() ); //add blank page to doc
 			     System.out.println("pageindex  = " + pageindex);
 			     PDPage currentpage = (PDPage)doc.getDocumentCatalog().getAllPages().get(pageindex);//get current page
-			     WriteTitleToPDF( doc, currentpage); //write test title on top of page
+			     WriteTitleToPDF( doc, currentpage, indivpage); //write test title on top of page
 			     
 			     System.out.println("Created page " + pageindex);
 			     System.out.println("remaining =  " + remaining);
 			     int i = 0;
 			    //CREATE Current PDF Page Loop
 					while(i < 7 || remaining < 0){ //remaining is here incase the number of quetions is less than 7
-						String qrCodeText = "Question "+(i+Questionshift);
+						int Qnum = i+Questionshift + 1;
+						String qrCodeText = "{\"Question\":\""+Integer.toString(Qnum) + "\", \"stud\":\"" + Integer.toString(x)+ "\"}" ; //QR_TEXT
 				        BufferedImage aQRImage = null; //initialize new bufferedimage, this will be the qrcode
 				        aQRImage = createQRImage(qrCodeText, sizeofQRCode, "png"); //create buffered image of QRCode
 	
@@ -183,10 +186,11 @@ public class CreatePDF2_Test {
 				pageindex++; //increment next page
 				Questionshift = Questionshift + 7;
 				System.out.println("questionshift = " + Questionshift); 
-				
+				indivpage++;//this controls the page number shown on bottom 
 		     }//end of fir while loop for pages
 		     studetpageindex = studetpageindex + pageindex;
 		     studentindex++; //add to student index
+		     
 		 }//end of numofstudents for loop
 		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test.pdf"); //save to my file system so i can see it
 		
@@ -263,7 +267,7 @@ public class CreatePDF2_Test {
 	
 	
 	
-	private static void WriteTitleToPDF(PDDocument doc, PDPage page) throws IOException{
+	private static void WriteTitleToPDF(PDDocument doc, PDPage page, int pageindex) throws IOException{
 		
 		//chose font
 //	     PDFont font = PDTrueTypeFont.loadTTF( doc, new File( "/Library/Fonts/Khmer Sangam MN.ttf" ) );
@@ -279,12 +283,26 @@ public class CreatePDF2_Test {
 	     float titleWidth = font.getStringWidth(title) / 1000 * fontSize;
 	     float titleHeight = font.getFontDescriptor().getFontBoundingBox().getHeight() / 1000 * fontSize;
 	    
+	     //draw the title of the page
 	     stream.beginText();
 	     stream.moveTextPositionByAmount((page.getMediaBox().getWidth() - titleWidth) / 2, page.getMediaBox().getHeight() - marginTop - titleHeight);
 	     stream.drawString(title);
 	     stream.endText();
 	     stream.close();
-		
+	     
+	     
+	     
+	   //draw the page number on the bottom right
+	     //NOTE pageindex starts at zero hence i add 1
+	     int pagenum = pageindex + 1;
+	     PDFont pagenumfont = PDType1Font.HELVETICA; //set font of pdf
+	     stream.setFont( pagenumfont, 8 );
+	     stream.beginText();
+	     stream.moveTextPositionByAmount(580,10);
+	     stream.drawString("Page " + Integer.toString(pagenum));
+	     stream.endText();
+	     stream.close();
+	     
 	}//end of writetitletopdf
 	
 	
@@ -321,6 +339,8 @@ public class CreatePDF2_Test {
 	    	 }
 	     }//end of linestring for
 	     
+	     
+	     //now write the possilbe answers AND correct answer
 		int shiftint = 0;
 		for(String s: QA[Qi].PossibleAnswers){ 
 			mycontentStream.drawImage(bubble, 100, (700-18*shiftint - 105*i)); //position of the bubble
@@ -330,6 +350,15 @@ public class CreatePDF2_Test {
 			mycontentStream.endText();
 			shiftint = shiftint + 1;
 		}//end of possible answers for loop	
+		
+		
+		//write the correct answer
+		mycontentStream.drawImage(bubble, 100, (700-18*shiftint - 105*i)); //position of the bubble
+		mycontentStream.beginText();
+		mycontentStream.moveTextPositionByAmount(125 , (705-18*shiftint - 105*i) );//position of the possible answer text        //var*shiftint : var i the distance between questions
+		mycontentStream.drawString(ReturnQuestionLetter(shiftint) + " " + QA[Qi].Answer );
+		mycontentStream.endText();
+		
 		
 		
 	}//end of writequtesiotntopdf

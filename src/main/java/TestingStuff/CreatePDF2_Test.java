@@ -86,7 +86,7 @@ public class CreatePDF2_Test {
 //		BasicDBObject keys = new BasicDBObject(); //create search object, keys will be what is returned
 //        keys.put("Questions",1); //tell mongo to grab key, this is still a setup
 //        DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) , keys ); //the actual mongo query
-		DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
+		DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query //markasparitalObject?
         System.out.println("Questions and answers = " + QuestionObjects);
         
         //grab data from json object
@@ -134,6 +134,9 @@ public class CreatePDF2_Test {
 		 
 		 JFrame frame = new JFrame(); //window popup //for debuggin
 		 
+		 ArrayList AnswerLocs = new ArrayList(); //Array of the answer locations
+		 BasicDBObject QI_SNTOT = new BasicDBObject();
+		 
 		 int studentindex = 0;
 		 int studetpageindex = 0; //controls the student page recreation
 		 
@@ -155,24 +158,28 @@ public class CreatePDF2_Test {
 			    //CREATE Current PDF Page Loop
 					while(i < 7 || remaining < 0){ //remaining is here incase the number of quetions is less than 7
 						int Qnum = i+Questionshift + 1;
-						String qrCodeText = "{\"Question\":\""+Integer.toString(Qnum) + "\", \"stud\":\"" + Integer.toString(x)+ "\"}" ; //QR_TEXT
+//						String qrCodeText = "{\"Question\":\""+Integer.toString(Qnum) + "\", \"stud\":\"" + Integer.toString(x)+ "\"}" ; //QR_TEXT
+						String qrCodeText = Integer.toString(x) + "_" +  Integer.toString(Qnum);
 				        BufferedImage aQRImage = null; //initialize new bufferedimage, this will be the qrcode
 				        aQRImage = createQRImage(qrCodeText, sizeofQRCode, "png"); //create buffered image of QRCode
 	
 				        PDXObjectImage PDQRImage = new PDJpeg(doc, aQRImage); //make image object for PDFbox
-				        BufferedImage testtest = PDQRImage.getRGBImage();
 				        
-	//				       frame.getContentPane().setLayout(new FlowLayout());
-	//				       frame.getContentPane().add(new JLabel(new ImageIcon(testtest)));
-	//				       frame.pack();
-	//				       frame.setVisible(true);
-	//			        
 				        
 				        PDXObjectImage bubble = new PDJpeg(doc, bubblgeImage); //make image object for PDFbox
 				        PDPageContentStream contentStream = new PDPageContentStream(doc, currentpage,true,false); //create write stream
 				        contentStream.drawImage( PDQRImage,0, (650-105*i) ); //write Qrcode onto pdf
 				        contentStream.setFont( Questionfont, 10 );//set font
 				        WriteQuestionToPDF(contentStream, i,(i+Questionshift), QA,bubble);//write the Question, answers, and bubbles
+				        
+				        
+				        BasicDBObject Answer = new BasicDBObject("Answer", 3);
+				        Answer.put("found", 0);
+//				        BasicDBObject QI_SN = new BasicDBObject(qrCodeText, Answer); //the qrCodeText = 0_1 for question 0 and student 1
+				        QI_SNTOT.put(qrCodeText, Answer);
+//				        QuestionObjects.put("Answers", QI_SN); //v2
+//				        AnswerLocs.add(QI_SN); //v1
+				        
 				        
 				        System.out.println("DONE writing question num = "+ (i + Questionshift));
 				        contentStream.close();//close stream 
@@ -193,6 +200,17 @@ public class CreatePDF2_Test {
 		     
 		 }//end of numofstudents for loop
 		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test.pdf"); //save to my file system so i can see it
+		QuestionObjects.put("Answers", QI_SNTOT); //v2
+		
+//		BasicDBObject ANSWERS = new BasicDBObject("Answers", AnswerLocs);
+//		QuestionObjects.put("Answers", AnswerLocs);
+		
+//		System.out.println("QI_SN = " ANSWERS.toString() );	
+//		for(BasicDBObject dbo : AnswerLocs){
+////			System.out.println("QI_SN = " AnswerLocs.get(i).toString());
+//		}
+		
+		
 		
 		
 		
@@ -213,6 +231,9 @@ public class CreatePDF2_Test {
 		//save back into our teacherschema json object
 		ArrayList CreatedPDF = new ArrayList(); //create the array of data 
 		CreatedPDF.add(gfsFile);//put gfsfile into the array
+		
+		
+		
         QuestionObjects.put("CreatedPDF", CreatedPDF); //put it in our json object //this will overide the previous values
         coll.save(QuestionObjects); //save into mongodb
 //        

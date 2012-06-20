@@ -92,7 +92,7 @@ public class CreatePDF2_Test {
         //grab data from json object
         JsonNode rootNode = mapper.readValue(QuestionObjects.toString().getBytes("UTF-8"), JsonNode.class);
         JsonNode Questions = rootNode.get("Questions");
-        JsonNode toplvl = rootNode.get("NumberOfStudents");
+//        JsonNode toplvl = rootNode.get("NumberOfStudents");
 	
 		//These loops will create a Question Object for every question in the QuestionObjects that was grabbed using the objectID fo the test we wanted
 	       Question[] QA = new Question[(Questions.size())];	
@@ -189,10 +189,12 @@ public class CreatePDF2_Test {
 			        
 				        
 				        //v3 (array with single object not object of object)
-				        BasicDBObject Answer = new BasicDBObject("Answer", 5);
+				        BasicDBObject Answer = new BasicDBObject("Answer", 3); // in need to asser that this is equal and less than 3 but equal and greatr to 0
 				        Answer.put("found", 0);
 				        Answer.put("IDS",qrCodeText);
 				        Answer.put("_id", new ObjectId());
+				        Answer.put("selected", null);
+				        Answer.put("correct", null);
 				        AnswerLocs.add(Answer); //v3
 				        
 				        

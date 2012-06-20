@@ -96,6 +96,7 @@ public class Test_gradingMongo {
 	public static void main(String[] args) throws IOException, InterruptedException, IM4JavaException, PdfException{ //is - is the inputstream of the pdf file
 		System.out.println("inside grader");
 		
+
 		 //required debugging code
 		Mongo m = new Mongo();
 		DB db = m.getDB("ecomm_database");
@@ -108,30 +109,22 @@ public class Test_gradingMongo {
         System.out.println("Test Object = " + TestObject);
         JsonNode rootNode = mapper.readValue(TestObject.toString().getBytes("UTF-8"), JsonNode.class);
         JsonNode Answers = rootNode.get("Answers");
-        JsonNode first = Answers.get("0_1");
-        
-        
-        
-//        JsonNode first = Answers.get(0).path("0_1");
-//        String ta = first.get("found").getTextValue();
-        System.out.println("answer = " + first.get("found").getIntValue());
+        JsonNode Questions = rootNode.get("Questions");
+        System.out.println("size of Questions = " + Questions.size());
+        int numofquestions = Questions.size();
         System.out.println("size of answers = " + Answers.size());
 //        for(int x = 0; x < Answers.size(); x++){
-//        	
-//        	String QID = new String(Answers.get(x).get("0_1").get("Answer").getTextValue()); //grab the question 
-//        	System.out.println("IDS = " + QID );
-//        	
-//        	
-//        	
-//        	
-//        	
-//        	
-////	        BasicDBObject correct = new BasicDBObject("correct", 3);
-////	        correct.put("found", 0);
-////	        correct.put("selected", 1);
-////	        BasicDBObject QI_SN = new BasicDBObject("1", correct); //the qrCodeText = 0_1 for question 0 and student 1
-////	        Results.add(QI_SN);
+//   	
+//		   	int IDS = Answers.get(x).get("IDS").getIntValue(); //grab the question 
+//		   	String QID = new String(Answers.get(x).get("IDS").getTextValue()); //grab the question 
+//		   	System.out.println("IDS = " + QID );
+//   	
 //        }//end of grade results
+		
+		
+		
+		
+		
 		
 		JFrame frame = new JFrame(); //window popup //for debuggin
 		//reading in file
@@ -170,18 +163,25 @@ public class Test_gradingMongo {
 	
 		
 		
-//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded.pdf");
-		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test_Inputs.pdf");
+//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded.pdf"); //to large, need to do some scaling
+//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test_Inputs.pdf"); //working 
+		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded_Vsmaller.pdf");
 		
 		PDDocument doc = PDDocument.load(PDF_file);//used to get page numbers
 	    int numpages = doc.getNumberOfPages(); //get page numbers for for loop
+	    int[] testresults = new int[Questions.size()]; //number of correct answers 
+	    System.out.println("result size = " + testresults.length);
+	    
+	    
 		 
 //		int numpages = decode_pdf.getPageCount(); //get page numbers for for loop
 		System.out.println("number of pages = " + numpages); //check to make sure the number of pages is reasonable, dont want this to be too large call Db and return
-		
+		System.out.println("____________________________________");
 //		   JFrame frame = new JFrame(); //window popup 
 		ArrayList Results = new ArrayList(); //Array of the answer locations
-			int numoffails = 0;
+		int numoffails = 0;
+		int Aindex = 0;
+		int Qindex = 0;
 		    for(int i = 0; i < numpages;i++){ //for every page
 		    	
 //		    	File PDF_file = new File("/Users/angellopozo/Documents/TestImages/PDF_CRICLEV2.pdf");
@@ -305,25 +305,45 @@ public class Test_gradingMongo {
 //							System.out.println("filled bubbles size = " + FilledBubbles.length);
 					        FilledBubbles = SortbyYdimention(FilledBubbles); 		     //note to self, check for nulls because that woud be an issue....   
 					        
-					        for(Integer[] tp : FilledBubbles){
-					        	System.out.println("Filled bubble Count = "+ tp[0] + " loc = "+ tp[1]);
-					        }
+					        //print out area of bubble
+//					        for(Integer[] tp : FilledBubbles){
+//					        	System.out.println("Filled bubble Count = "+ tp[0] + " loc = "+ tp[1]);
+//					        }
 					        
 					        int maxIndex = ReturnIndexOfmax(FilledBubbles);//maxindex = the answer submitted by the student 
 					        
 					        
-					        /* GRADE THE RESULTS!!! */ //  TestObject
+					/* GRADE THE RESULTS!!! */ //  TestObject =mongo query result, Aindex  = question being looked at
+					        
 					        
 
+						   	String QID = new String(Answers.get(Aindex).get("IDS").getTextValue()); //grab the question  ID
+						   	int CorrectAnswerloc =Answers.get(Aindex).get("Answer").getIntValue(); //correct answer location
+						   	System.out.println("Correc answer loc = " + CorrectAnswerloc);
+						   	System.out.println("IDS = " + QID  + " QI = " + Aindex);
+						   	
+						   	int iscorrect = checkcorrectness(CorrectAnswerloc, maxIndex); 
+						   	
+						   	
+					        BasicDBObject newvals = new BasicDBObject();
+					        String Answersnum = new String("Answers." + Integer.toString(Aindex));
+					        newvals.put(Answersnum + ".found", 1);
+					        newvals.put(Answersnum + ".correct", iscorrect);
+					        newvals.put(Answersnum + ".selected", maxIndex);
+					        BasicDBObject posop = new BasicDBObject("$set", newvals);
+					        System.out.println("inc query = " + posop.toString());
+					        coll.update(new BasicDBObject("_id", new ObjectId(message)), posop);
+						   	
+
+					        if(iscorrect == 1){
+					        	int testmod = Aindex % numofquestions;
+					        	System.out.println("mod result = " + testmod);
+					        	System.out.println("Question = " + testmod + " is correct = " + iscorrect );
+					        	testresults[testmod] = testresults[testmod] + 1;
+					        }
 					        
-					        
-					        
-					        
-					        
-					        
-					        
-					        
-					        
+					        Aindex++; //index for looping through answer array 
+					/* END GRADE THE RESULTS!!! */ //  TestObject
 					        //draw the red circles
 					        CvPoint slectedcenter = new CvPoint(FilledBubbles[maxIndex][1].intValue(),FilledBubbles[maxIndex][2].intValue());
 					        cvCircle(ipl_subBubble_large,slectedcenter,FilledBubbles[maxIndex][3].intValue(), CvScalar.RED, 3,8,0);
@@ -332,9 +352,9 @@ public class Test_gradingMongo {
 							
 							
 							//saving subimages to i can debug results
-							String subimagename = new String("subimage_"+i+"_"+index+".jpg");
-							index++;
-							cvSaveImage(subimagename,ipl_subBubble_large);
+//							String subimagename = new String("subimage_"+i+"_"+index+".jpg");
+							index++; //(0-number of questions) 
+//							cvSaveImage(subimagename,ipl_subBubble_large);
 							// create image window named "My Image"
 							String que = new String("_for_"+ result.getText());
 						    final CanvasFrame canvas = new CanvasFrame("Bubbles_Found"+que);
@@ -345,7 +365,7 @@ public class Test_gradingMongo {
 							
 							
 						    
-					
+					System.out.println("____________________________________");
 					}//end of for results loop
 				//end drawing boxes around each QR CODE
 					
@@ -370,6 +390,10 @@ public class Test_gradingMongo {
 		    
 		    
 
+		    
+		for(int j = 0; j < testresults.length;j++){
+			System.out.println("Question " + j + " numcorrect = " + testresults[j]);
+		}
 		    
 		
 		System.out.println("Failed to grade " + numoffails + " questions");
@@ -415,7 +439,18 @@ public class Test_gradingMongo {
 	
 	
 	
-	
+	public static int checkcorrectness(int userinput, int answer){ //1 equals correct, 0 equals wrong
+		//do assertions on expected values?
+		
+
+		if(userinput == answer){
+			return 1;
+		}
+		else{
+			return 0;
+		}
+
+	}//end of checkcorrectness
 	
 		
 //	
@@ -519,7 +554,8 @@ public class Test_gradingMongo {
 				count++;
 			}
 			
-			System.out.println("Max found in this array = "+index);
+//			System.out.println("Max found in this array = "+index);
+			System.out.println("answer selected = " + index);
 			
 			return index;
 		}//end of ReturnIndexOfMax

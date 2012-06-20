@@ -173,12 +173,28 @@ public class CreatePDF2_Test {
 				        WriteQuestionToPDF(contentStream, i,(i+Questionshift), QA,bubble);//write the Question, answers, and bubbles
 				        
 				        
-				        BasicDBObject Answer = new BasicDBObject("Answer", 3);
-				        Answer.put("found", 0);
+//				        //v1 (non array, just a bunch of objects)
+//				        BasicDBObject Answer = new BasicDBObject("Answer", 4);
+//				        Answer.put("found", 0);
+//				        QI_SNTOT.put(qrCodeText, Answer);
+
+				        
+				        
+//				        //v2 (array of objects)
+//				        BasicDBObject Answer = new BasicDBObject("Answer", 4);
+//				        Answer.put("found", 0);
 //				        BasicDBObject QI_SN = new BasicDBObject(qrCodeText, Answer); //the qrCodeText = 0_1 for question 0 and student 1
-				        QI_SNTOT.put(qrCodeText, Answer);
 //				        QuestionObjects.put("Answers", QI_SN); //v2
-//				        AnswerLocs.add(QI_SN); //v1
+//				        AnswerLocs.add(QI_SN); //v2		
+			        
+				        
+				        //v3 (array with single object not object of object)
+				        BasicDBObject Answer = new BasicDBObject("Answer", 5);
+				        Answer.put("found", 0);
+				        Answer.put("IDS",qrCodeText);
+				        Answer.put("_id", new ObjectId());
+				        AnswerLocs.add(Answer); //v3
+				        
 				        
 				        
 				        System.out.println("DONE writing question num = "+ (i + Questionshift));
@@ -200,10 +216,16 @@ public class CreatePDF2_Test {
 		     
 		 }//end of numofstudents for loop
 		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test.pdf"); //save to my file system so i can see it
-		QuestionObjects.put("Answers", QI_SNTOT); //v2
+		//v1
+//		QuestionObjects.put("Answers", QI_SNTOT); //v1 
 		
+		//v2
 //		BasicDBObject ANSWERS = new BasicDBObject("Answers", AnswerLocs);
 //		QuestionObjects.put("Answers", AnswerLocs);
+		
+		//v3
+		BasicDBObject ANSWERS = new BasicDBObject("Answers", AnswerLocs);
+		QuestionObjects.put("Answers", AnswerLocs);
 		
 //		System.out.println("QI_SN = " ANSWERS.toString() );	
 //		for(BasicDBObject dbo : AnswerLocs){

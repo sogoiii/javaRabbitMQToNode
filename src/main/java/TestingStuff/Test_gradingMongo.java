@@ -170,213 +170,253 @@ public class Test_gradingMongo {
 	
 		
 		
-////		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded.pdf");
-//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test_Inputs.pdf");
-//		
-//		PDDocument doc = PDDocument.load(PDF_file);//used to get page numbers
-//	    int numpages = doc.getNumberOfPages(); //get page numbers for for loop
-//		 
-////		int numpages = decode_pdf.getPageCount(); //get page numbers for for loop
-//		System.out.println("number of pages = " + numpages); //check to make sure the number of pages is reasonable, dont want this to be too large call Db and return
-//		
-////		   JFrame frame = new JFrame(); //window popup 
-//		ArrayList Results = new ArrayList(); //Array of the answer locations
-//			int numoffails = 0;
-//		    for(int i = 0; i < numpages;i++){ //for every page
-//		    	
-////		    	File PDF_file = new File("/Users/angellopozo/Documents/TestImages/PDF_CRICLEV2.pdf");
-//		    	//convert page to PDF
-//				 BufferedImage PDF_img = ConvertPageToImage(PDF_file,i);
-////		    	 BufferedImage PDF_img = decode_pdf.getPageAsImage(i);
-//				  
-//				  
-//				//START creating luminance source
-//					 LuminanceSource lumSource = new BufferedImageLuminanceSource(PDF_img);
-//					 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(lumSource));		
-//					 
-//					 Reader reader = new QRCodeReader(); //create qr reader
-//					 GenericMultipleBarcodeReader multireader = new GenericMultipleBarcodeReader(reader); 
-//				  
-//					 Hashtable<DecodeHintType, Object> hints = new Hashtable<DecodeHintType, Object>();
-//					 hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-//					 
-//					 TreeMap<String, Rectangle2D> sortedBarcodeResults = new TreeMap<String, Rectangle2D>();
-//					 Result results[] = null;
-//					 try {
-//						    results = multireader.decodeMultiple(bitmap, hints);
-//						} catch (ReaderException re) {
-//						    return;
-//					 }//end of try
-//				//END creating luminance source 
-//					 
-//					 
-//					 
-//					 
-//					 
-//					 
-//					 
-//			   //go through each found QR Code and draw a box around it		 
-//					 BufferedImage outimage = PDF_img;//copy of the pdf image
-//					 Graphics2D g2 = outimage.createGraphics();
-//					 g2.setColor(Color.green);
-//					 g2.setStroke(new BasicStroke(3));
-//					//draw boxes around the found qrcodes 
-//					 int index = 0;//debug line to save images
-//					for ( Result result: results ) {
-//						    System.out.println("barcode result: " + result.getText());
-//						    double x1 = result.getResultPoints()[0].getX(); //top left
-//						    double y1 = result.getResultPoints()[0].getY(); // top left
-//						    double x2 = result.getResultPoints()[1].getX(); //top right
-//						    double y2 = result.getResultPoints()[1].getY(); //top right
-//						    double x3 = result.getResultPoints()[2].getX();// bottom left
-//						    double y3 = result.getResultPoints()[2].getY(); //bottom left
-//						    // double x4 = result.getResultPoints()[3].getX(); //bottom right (bottom right square location..some qr have it)
-//						    //  double y4 = result.getResultPoints()[3].getY(); //bottom right (bottom right square location..some qr have it)
-//						    Rectangle2D rectbox = new Rectangle2D.Double(x2, y2, (x3-x2), (y1-y2));
-//						    // Double buffer = 10.0;//highly dependent on the size of the qrcode
-//						    // Rectangle2D rectbox = new Rectangle2D.Double(x2-buffer, y2-buffer, (x3-x2)+2*buffer, (y1-y2)+2*buffer);
-////						    System.out.println("barcode location: " + x1 +" "+ y1 +" "+ x2 +" "+ y2 + " " + x3 +" "+ y3);
-//						    // System.out.println("barcode location: " + x3 +" "+ y3+" "+ x4+" "+ y4+"\n");// +" "+ (x2-x1) +" "+ (y2-y1) +"\n");
-//						    sortedBarcodeResults.put(result.getText(), rectbox); //(qrdecoded string , rectangle box in pixels)
-//
-//						    g2.draw(rectbox); //draw box around qrcode 
-//						    
-//						    Rectangle2D bubblebox = new Rectangle2D.Double(x2 + (x3-x2) + 15 ,y2 -20, 45, (y1-y2)+55);	//box around bubbles
-//						    g2.draw(bubblebox);//area that the bubbles exist in the image
-//						    
-//						    BufferedImage subBubble = PDF_img.getSubimage((int)(x2 + (x3-x2) + 15) ,(int)(y2 - 20) , 45, (int)((y1-y2)+55));//box around bubbles
-//						    IplImage ipl_subBubble = IplImage.createFrom(subBubble);//convert subimage into iplimage
-//						    IplImage ipl_subBubble_large = cvCreateImage(cvSize(ipl_subBubble.width()*4,ipl_subBubble.height()*4),ipl_subBubble.depth(),ipl_subBubble.nChannels());
-//						    cvResize(ipl_subBubble, ipl_subBubble_large, CV_INTER_CUBIC);//enlarge image 
-//						    IplImage ipl_subBubble_gray = cvCreateImage( cvSize( ipl_subBubble_large.width(), ipl_subBubble_large.height() ), IPL_DEPTH_8U, 1 ); //create black and white version of page
-//						   // IplImage ipl_subBubble_gray = ipl_subBubble_large.clone();
-//						    
-//						    
-//						    
-//						    if(ipl_subBubble_large.nChannels() > 1){
-//						    	cvCvtColor(ipl_subBubble_large,ipl_subBubble_gray,CV_RGB2GRAY );
-//						    }
-//						    else{
-//						  //  	IplImage ipl_subBubble_gray = ipl_subBubble_large.clone();
-//						    }
-//						    
-//						    
-//						    cvThreshold(ipl_subBubble_gray,ipl_subBubble_gray,100,255,CV_THRESH_OTSU);
-//							cvSmooth(ipl_subBubble_gray,ipl_subBubble_gray,CV_GAUSSIAN,9,9,2,2);
-//							CvMemStorage circles = CvMemStorage.create();
-//							
-//							
-//							//CanvasFrame smoothed = new CanvasFrame("gray image");
-//							//smoothed.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
-//							//smoothed.showImage(ipl_subBubble_gray);
-//							
-//		
-//							CvSeq seq = cvHoughCircles(ipl_subBubble_gray, circles, CV_HOUGH_GRADIENT,
-//	                                				1, 50, 
-//	                                				80, 20, 
-//	                                				32,  (int)(ipl_subBubble_gray.height()/(7)));
-//							
-//							Integer[][] FilledBubbles = new Integer[4][4]; //arry holds the #of pixels seen and the y dimention of subimage
-//							Vector<CvPoint> centers = new Vector<CvPoint>(4);//the 4 can be seq.total()
-//							for(int j=0; j<seq.total(); j++){ //draw a circle around each circle found
-//						        CvPoint3D32f xyr = new CvPoint3D32f(cvGetSeqElem(seq, j));
-//						        CvPoint center = new CvPoint(Math.round(xyr.x()), Math.round(xyr.y()));
-//						        int radius = Math.round(xyr.z());
-//						        cvCircle(ipl_subBubble_large, center, 3, CvScalar.GREEN, -1, 8, 0);//center of circle
-//						        cvCircle(ipl_subBubble_large, center, radius, CvScalar.BLUE, 3, 8, 0);//outer circle
-//						        FilledBubbles[j][0] = FindBubbleSelected(center, radius, ipl_subBubble_gray);
-////						        FilledBubbles[j][0] = 1; //here to get rid of dimensions error
-//						        FilledBubbles[j][1] = Math.round(center.x());
-//						        FilledBubbles[j][2] = Math.round(center.y());
-//						        FilledBubbles[j][3] = Math.round(radius);
-//						        //System.out.println("Filled bubble Count = "+ FilledBubbles[j]);
-//							}//end of look for circles for
-//							
-//							
-//							//the algorithm may not find circles 
-//							int anynull = anynulls(FilledBubbles);
-////							System.out.println("anynull = "+ anynull);
-//							if(anynull == 1){
-//								numoffails++;
-//								continue; //this question, not all circles were found.
-//							}//end of null check //this means not all 4 circles were found
-//							
-////							System.out.println("filled bubbles size = " + FilledBubbles[0].length);
-////							System.out.println("filled bubbles size = " + FilledBubbles.length);
-//					        FilledBubbles = SortbyYdimention(FilledBubbles); 		     //note to self, check for nulls because that woud be an issue....   
-//					        
-//					        for(Integer[] tp : FilledBubbles){
-//					        	System.out.println("Filled bubble Count = "+ tp[0] + " loc = "+ tp[1]);
-//					        }
-//					        
-//					        int maxIndex = ReturnIndexOfmax(FilledBubbles);//maxindex = the answer submitted by the student 
-//					        
-//					        
-//					        /* GRADE THE RESULTS!!! */ //  TestObject
-//					        
-//
-//					        
-//					        
-//					        
-//					        
-//					        
-//					        
-//					        
-//					        
-//					        
-//					        
-//					        CvPoint slectedcenter = new CvPoint(FilledBubbles[maxIndex][1].intValue(),FilledBubbles[maxIndex][2].intValue());
-//					        cvCircle(ipl_subBubble_large,slectedcenter,FilledBubbles[maxIndex][3].intValue(), CvScalar.RED, 3,8,0);
-//					        	
-//					  
-//							
-//							
-//							
-//							String subimagename = new String("subimage_"+i+"_"+index+".jpg");
-//							index++;
-//							cvSaveImage(subimagename,ipl_subBubble_large);
-//							// create image window named "My Image"
-//							String que = new String("_for_"+ result.getText());
-//						    final CanvasFrame canvas = new CanvasFrame("Bubbles_Found"+que);
-//						 // request closing of the application when the image window is closed
-//						    canvas.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
-//						 // show image on window
-//						    canvas.showImage(ipl_subBubble_large);
-//							
-//							
-//						    
-//					
-//					}//end of for results loop
-//				//end drawing boxes around each QR CODE
-//					
-//					//START code to display in JFRAME
-//					if(i == 0){
-//			       frame.getContentPane().setLayout(new FlowLayout());
-//			       frame.getContentPane().add(new JLabel(new ImageIcon(outimage)));
-//			       frame.pack();
-//			       frame.setVisible(true);
-//					}
-//					else {
-//						
-//						frame.getContentPane().add(new JLabel(new ImageIcon(outimage)));
-//				        frame.pack();
-//				        frame.setVisible(true);
-//						
-//					}  
-//					//END code to display in JFRAME
-//					
-//		
-//		    }//end of for loop of pages
-//		    
-//		    
-//
-//		    
-//		
-//		System.out.println("Failed to grade " + numoffails + " questions");
-//		doc.close();
+//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded.pdf");
+		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test_Inputs.pdf");
+		
+		PDDocument doc = PDDocument.load(PDF_file);//used to get page numbers
+	    int numpages = doc.getNumberOfPages(); //get page numbers for for loop
+		 
+//		int numpages = decode_pdf.getPageCount(); //get page numbers for for loop
+		System.out.println("number of pages = " + numpages); //check to make sure the number of pages is reasonable, dont want this to be too large call Db and return
+		
+//		   JFrame frame = new JFrame(); //window popup 
+		ArrayList Results = new ArrayList(); //Array of the answer locations
+			int numoffails = 0;
+		    for(int i = 0; i < numpages;i++){ //for every page
+		    	
+//		    	File PDF_file = new File("/Users/angellopozo/Documents/TestImages/PDF_CRICLEV2.pdf");
+		    	//convert page to PDF
+				 BufferedImage PDF_img = ConvertPageToImage(PDF_file,i);
+//		    	 BufferedImage PDF_img = decode_pdf.getPageAsImage(i);
+				  
+				  
+				//START creating luminance source
+					 LuminanceSource lumSource = new BufferedImageLuminanceSource(PDF_img);
+					 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(lumSource));		
+					 
+					 Reader reader = new QRCodeReader(); //create qr reader
+					 GenericMultipleBarcodeReader multireader = new GenericMultipleBarcodeReader(reader); 
+				  
+					 Hashtable<DecodeHintType, Object> hints = new Hashtable<DecodeHintType, Object>();
+					 hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+					 
+					 TreeMap<String, Rectangle2D> sortedBarcodeResults = new TreeMap<String, Rectangle2D>();
+					 Result results[] = null;
+					 try {
+						    results = multireader.decodeMultiple(bitmap, hints);
+						} catch (ReaderException re) {
+						    return;
+					 }//end of try
+				//END creating luminance source 
+					 
+					 
+					 
+					 
+					 
+					 
+					 
+			   //go through each found QR Code and draw a box around it		 
+					 BufferedImage outimage = PDF_img;//copy of the pdf image
+					 Graphics2D g2 = outimage.createGraphics();
+					 g2.setColor(Color.green);
+					 g2.setStroke(new BasicStroke(3));
+					//draw boxes around the found qrcodes 
+					 int index = 0;//debug line to save images
+					for ( Result result: results ) {
+						    System.out.println("barcode result: " + result.getText());
+						    double x1 = result.getResultPoints()[0].getX(); //top left
+						    double y1 = result.getResultPoints()[0].getY(); // top left
+						    double x2 = result.getResultPoints()[1].getX(); //top right
+						    double y2 = result.getResultPoints()[1].getY(); //top right
+						    double x3 = result.getResultPoints()[2].getX();// bottom left
+						    double y3 = result.getResultPoints()[2].getY(); //bottom left
+						    // double x4 = result.getResultPoints()[3].getX(); //bottom right (bottom right square location..some qr have it)
+						    //  double y4 = result.getResultPoints()[3].getY(); //bottom right (bottom right square location..some qr have it)
+						    Rectangle2D rectbox = new Rectangle2D.Double(x2, y2, (x3-x2), (y1-y2));
+						    // Double buffer = 10.0;//highly dependent on the size of the qrcode
+						    // Rectangle2D rectbox = new Rectangle2D.Double(x2-buffer, y2-buffer, (x3-x2)+2*buffer, (y1-y2)+2*buffer);
+//						    System.out.println("barcode location: " + x1 +" "+ y1 +" "+ x2 +" "+ y2 + " " + x3 +" "+ y3);
+						    // System.out.println("barcode location: " + x3 +" "+ y3+" "+ x4+" "+ y4+"\n");// +" "+ (x2-x1) +" "+ (y2-y1) +"\n");
+						    sortedBarcodeResults.put(result.getText(), rectbox); //(qrdecoded string , rectangle box in pixels)
+
+						    g2.draw(rectbox); //draw box around qrcode 
+						    
+						    Rectangle2D bubblebox = new Rectangle2D.Double(x2 + (x3-x2) + 15 ,y2 -20, 45, (y1-y2)+55);	//box around bubbles
+						    g2.draw(bubblebox);//area that the bubbles exist in the image
+						    
+						    BufferedImage subBubble = PDF_img.getSubimage((int)(x2 + (x3-x2) + 15) ,(int)(y2 - 20) , 45, (int)((y1-y2)+55));//box around bubbles
+						    IplImage ipl_subBubble = IplImage.createFrom(subBubble);//convert subimage into iplimage
+						    IplImage ipl_subBubble_large = cvCreateImage(cvSize(ipl_subBubble.width()*4,ipl_subBubble.height()*4),ipl_subBubble.depth(),ipl_subBubble.nChannels());
+						    cvResize(ipl_subBubble, ipl_subBubble_large, CV_INTER_CUBIC);//enlarge image 
+						    IplImage ipl_subBubble_gray = cvCreateImage( cvSize( ipl_subBubble_large.width(), ipl_subBubble_large.height() ), IPL_DEPTH_8U, 1 ); //create black and white version of page
+						   // IplImage ipl_subBubble_gray = ipl_subBubble_large.clone();
+						    
+						    
+						    
+						    if(ipl_subBubble_large.nChannels() > 1){
+						    	cvCvtColor(ipl_subBubble_large,ipl_subBubble_gray,CV_RGB2GRAY );
+						    }
+						    else{
+						  //  	IplImage ipl_subBubble_gray = ipl_subBubble_large.clone();
+						    }
+						    
+						    
+						    cvThreshold(ipl_subBubble_gray,ipl_subBubble_gray,100,255,CV_THRESH_OTSU);
+							cvSmooth(ipl_subBubble_gray,ipl_subBubble_gray,CV_GAUSSIAN,9,9,2,2);
+							CvMemStorage circles = CvMemStorage.create();
+							
+							
+							//CanvasFrame smoothed = new CanvasFrame("gray image");
+							//smoothed.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+							//smoothed.showImage(ipl_subBubble_gray);
+							
+		
+							CvSeq seq = cvHoughCircles(ipl_subBubble_gray, circles, CV_HOUGH_GRADIENT,
+	                                				1, 50, 
+	                                				80, 20, 
+	                                				32,  (int)(ipl_subBubble_gray.height()/(7)));
+							
+							Integer[][] FilledBubbles = new Integer[4][4]; //arry holds the #of pixels seen and the y dimention of subimage
+							Vector<CvPoint> centers = new Vector<CvPoint>(4);//the 4 can be seq.total()
+							for(int j=0; j<seq.total(); j++){ //draw a circle around each circle found
+						        CvPoint3D32f xyr = new CvPoint3D32f(cvGetSeqElem(seq, j));
+						        CvPoint center = new CvPoint(Math.round(xyr.x()), Math.round(xyr.y()));
+						        int radius = Math.round(xyr.z());
+						        cvCircle(ipl_subBubble_large, center, 3, CvScalar.GREEN, -1, 8, 0);//center of circle
+						        cvCircle(ipl_subBubble_large, center, radius, CvScalar.BLUE, 3, 8, 0);//outer circle
+						        FilledBubbles[j][0] = FindBubbleSelected(center, radius, ipl_subBubble_gray);
+//						        FilledBubbles[j][0] = 1; //here to get rid of dimensions error
+						        FilledBubbles[j][1] = Math.round(center.x());
+						        FilledBubbles[j][2] = Math.round(center.y());
+						        FilledBubbles[j][3] = Math.round(radius);
+						        //System.out.println("Filled bubble Count = "+ FilledBubbles[j]);
+							}//end of look for circles for
+							
+							
+							//the algorithm may not find circles 
+							int anynull = anynulls(FilledBubbles);
+//							System.out.println("anynull = "+ anynull);
+							if(anynull == 1){
+								numoffails++;
+								continue; //this question, not all circles were found.
+							}//end of null check //this means not all 4 circles were found
+							
+//							System.out.println("filled bubbles size = " + FilledBubbles[0].length);
+//							System.out.println("filled bubbles size = " + FilledBubbles.length);
+					        FilledBubbles = SortbyYdimention(FilledBubbles); 		     //note to self, check for nulls because that woud be an issue....   
+					        
+					        for(Integer[] tp : FilledBubbles){
+					        	System.out.println("Filled bubble Count = "+ tp[0] + " loc = "+ tp[1]);
+					        }
+					        
+					        int maxIndex = ReturnIndexOfmax(FilledBubbles);//maxindex = the answer submitted by the student 
+					        
+					        
+					        /* GRADE THE RESULTS!!! */ //  TestObject
+					        
+
+					        
+					        
+					        
+					        
+					        
+					        
+					        
+					        
+					        
+					        //draw the red circles
+					        CvPoint slectedcenter = new CvPoint(FilledBubbles[maxIndex][1].intValue(),FilledBubbles[maxIndex][2].intValue());
+					        cvCircle(ipl_subBubble_large,slectedcenter,FilledBubbles[maxIndex][3].intValue(), CvScalar.RED, 3,8,0);
+					        	
+					  
+							
+							
+							//saving subimages to i can debug results
+							String subimagename = new String("subimage_"+i+"_"+index+".jpg");
+							index++;
+							cvSaveImage(subimagename,ipl_subBubble_large);
+							// create image window named "My Image"
+							String que = new String("_for_"+ result.getText());
+						    final CanvasFrame canvas = new CanvasFrame("Bubbles_Found"+que);
+						 // request closing of the application when the image window is closed
+						    canvas.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+						 // show image on window
+						    canvas.showImage(ipl_subBubble_large);
+							
+							
+						    
+					
+					}//end of for results loop
+				//end drawing boxes around each QR CODE
+					
+					//START code to display in JFRAME
+					if(i == 0){
+			       frame.getContentPane().setLayout(new FlowLayout());
+			       frame.getContentPane().add(new JLabel(new ImageIcon(outimage)));
+			       frame.pack();
+			       frame.setVisible(true);
+					}
+					else {
+						
+						frame.getContentPane().add(new JLabel(new ImageIcon(outimage)));
+				        frame.pack();
+				        frame.setVisible(true);
+						
+					}  
+					//END code to display in JFRAME
+					
+		
+		    }//end of for loop of pages
+		    
+		    
+
+		    
+		
+		System.out.println("Failed to grade " + numoffails + " questions");
+		doc.close();
 		
 		
 	}//end of Grader
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 		
 //	
 //	public static BufferedImage ConvertPageToImage(PDDocument doc, int i){

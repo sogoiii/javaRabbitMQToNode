@@ -104,7 +104,7 @@ public class Test_gradingMongo {
 		ObjectMapper mapper = new ObjectMapper(); 
 	
 		
-		String message = "4fd8d74675689700000000f3"; //test id, that i will have in the real version
+		String message = "4fda1af52f910cc6200000d3"; //test id, that i will have in the real version
 		DBObject TestObject = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
         System.out.println("Test Object = " + TestObject);
         JsonNode rootNode = mapper.readValue(TestObject.toString().getBytes("UTF-8"), JsonNode.class);
@@ -356,12 +356,12 @@ public class Test_gradingMongo {
 							index++; //(0-number of questions) 
 //							cvSaveImage(subimagename,ipl_subBubble_large);
 							// create image window named "My Image"
-							String que = new String("_for_"+ result.getText());
-						    final CanvasFrame canvas = new CanvasFrame("Bubbles_Found"+que);
-						 // request closing of the application when the image window is closed
-						    canvas.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
-						 // show image on window
-						    canvas.showImage(ipl_subBubble_large);
+//							String que = new String("_for_"+ result.getText());
+//						    final CanvasFrame canvas = new CanvasFrame("Bubbles_Found"+que);
+//						 // request closing of the application when the image window is closed
+//						    canvas.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+//						 // show image on window
+//						    canvas.showImage(ipl_subBubble_large);
 							
 							
 						    
@@ -369,32 +369,44 @@ public class Test_gradingMongo {
 					}//end of for results loop
 				//end drawing boxes around each QR CODE
 					
-					//START code to display in JFRAME
-					if(i == 0){
-			       frame.getContentPane().setLayout(new FlowLayout());
-			       frame.getContentPane().add(new JLabel(new ImageIcon(outimage)));
-			       frame.pack();
-			       frame.setVisible(true);
-					}
-					else {
-						
-						frame.getContentPane().add(new JLabel(new ImageIcon(outimage)));
-				        frame.pack();
-				        frame.setVisible(true);
-						
-					}  
-					//END code to display in JFRAME
+//					//START code to display in JFRAME
+//					if(i == 0){
+//			       frame.getContentPane().setLayout(new FlowLayout());
+//			       frame.getContentPane().add(new JLabel(new ImageIcon(outimage)));
+//			       frame.pack();
+//			       frame.setVisible(true);
+//					}
+//					else {
+//						
+//						frame.getContentPane().add(new JLabel(new ImageIcon(outimage)));
+//				        frame.pack();
+//				        frame.setVisible(true);
+//						
+//					}  
+//					//END code to display in JFRAME
 					
 		
 		    }//end of for loop of pages
 		    
 		    
-
+		
 		    
+		ArrayList TestResultsarray = new ArrayList(); //Array of the answer locations    
+
+        
 		for(int j = 0; j < testresults.length;j++){
+			BasicDBObject Rvals = new BasicDBObject("numcorrect", testresults[j]);
+			TestResultsarray.add(Rvals); //v2
 			System.out.println("Question " + j + " numcorrect = " + testresults[j]);
 		}
 		    
+		System.out.println("TestResultsarray = " + TestResultsarray);
+		BasicDBObject popresults = new BasicDBObject("results", TestResultsarray);
+		BasicDBObject set = new BasicDBObject("$set", popresults);
+		System.out.println("Test result query = " + popresults);
+		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set);
+		
+		
 		
 		System.out.println("Failed to grade " + numoffails + " questions");
 		doc.close();

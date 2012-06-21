@@ -395,16 +395,22 @@ public class Test_gradingMongo {
 
         
 		for(int j = 0; j < testresults.length;j++){
-			BasicDBObject Rvals = new BasicDBObject("numcorrect", testresults[j]);
-			TestResultsarray.add(Rvals); //v2
-			System.out.println("Question " + j + " numcorrect = " + testresults[j]);
+			BasicDBObject Rvals = new BasicDBObject();
+			Rvals.put("numcorrect", testresults[j]);
+			Rvals.put("_id", new ObjectId());
+			Rvals.put("teststring" , "astring");
+			TestResultsarray.add(Rvals); //add Rvals into the Testresultarray listarray
+//			System.out.println("Question " + j + " numcorrect = " + testresults[j]);
 		}
 		    
-		System.out.println("TestResultsarray = " + TestResultsarray);
-		BasicDBObject popresults = new BasicDBObject("results", TestResultsarray);
-		BasicDBObject set = new BasicDBObject("$set", popresults);
-		System.out.println("Test result query = " + popresults);
-		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set);
+//		System.out.println("TestResultsarray = " + TestResultsarray);
+//		BasicDBObject popresults = new BasicDBObject("TestResults", TestResultsarray);
+//		BasicDBObject set = new BasicDBObject("$set", popresults);
+//		System.out.println("Test result query = " + popresults);
+		DBObject TestObject2 = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
+		TestObject2.put("TestResults", TestResultsarray);
+		coll.save(TestObject2);
+//		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set);
 		
 		
 		

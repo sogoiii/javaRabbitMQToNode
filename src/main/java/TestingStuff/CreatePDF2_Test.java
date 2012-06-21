@@ -226,7 +226,8 @@ public class CreatePDF2_Test {
 //		QuestionObjects.put("Answers", AnswerLocs);
 		
 		//v3
-		BasicDBObject ANSWERS = new BasicDBObject("Answers", AnswerLocs);
+//		BasicDBObject ANSWERS = new BasicDBObject("Answers", AnswerLocs);
+//		System.out.println("answers object array = " + ANSWERS);
 		QuestionObjects.put("Answers", AnswerLocs);
 		
 //		System.out.println("QI_SN = " ANSWERS.toString() );	

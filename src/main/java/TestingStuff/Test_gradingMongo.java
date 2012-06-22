@@ -179,9 +179,13 @@ public class Test_gradingMongo {
 		System.out.println("____________________________________");
 //		   JFrame frame = new JFrame(); //window popup 
 		ArrayList Results = new ArrayList(); //Array of the answer locations
+		ArrayList WA = new ArrayList(); //array of wrong answers that were selected by the students
+		ArrayList SR = new ArrayList(); //holding accumulated data below. selected answers array
 		int numoffails = 0;
 		int Aindex = 0;
 		int Qindex = 0;
+		int[][] Selections = new int[2][Questions.size()]; // student , question
+		int[][] SelectionTotal = new int[Questions.size()][4]; // question, answer selected
 		    for(int i = 0; i < numpages;i++){ //for every page
 		    	
 //		    	File PDF_file = new File("/Users/angellopozo/Documents/TestImages/PDF_CRICLEV2.pdf");
@@ -335,12 +339,27 @@ public class Test_gradingMongo {
 					        coll.update(new BasicDBObject("_id", new ObjectId(message)), posop);
 						   	
 
+					        
+//					        System.out.println("first character = " + QID.charAt(0));
+//					        System.out.println("last character = " + QID.charAt(2));
+					        int Qint = Aindex % numofquestions;
 					        if(iscorrect == 1){
-					        	int testmod = Aindex % numofquestions;
-					        	System.out.println("mod result = " + testmod);
-					        	System.out.println("Question = " + testmod + " is correct = " + iscorrect );
-					        	testresults[testmod] = testresults[testmod] + 1;
+					        	
+					        	System.out.println("mod result = " + Qint);
+					        	System.out.println("Question = " + Qint + " is correct = " + iscorrect );
+					        	testresults[Qint] = testresults[Qint] + 1;
 					        }
+//					        else if(iscorrect == 0){ //wrong answer was selected // Selections
+					        	char stud = QID.charAt(0);
+					        	char Q = QID.charAt(2);
+						        System.out.println("Student num = " + stud);
+						        System.out.println("Q num = " + Character.getNumericValue(Q-1));
+					        	Selections[Character.getNumericValue(stud)][Qint] = maxIndex;
+					        	SelectionTotal[Qint][maxIndex] = SelectionTotal[Qint][maxIndex] + 1;
+//					        }
+					        
+					        
+
 					        
 					        Aindex++; //index for looping through answer array 
 					/* END GRADE THE RESULTS!!! */ //  TestObject
@@ -390,27 +409,50 @@ public class Test_gradingMongo {
 		    
 		    
 		
+		for(int i = 0; i < Selections.length; i++){
+			for(int j = 0; j < Selections[0].length;j++){
+				System.out.println("Student (" + i + "," + j +") selected = "+ Selections[i][j]);
+			}
+		}
+		
+		for(int i =0 ; i < SelectionTotal.length; i++){
+			for(int j = 0; j < SelectionTotal[0].length;j++){
+				System.out.println("Quesetion (" + i + "," + j +") selected = "+ SelectionTotal[i][j]);
+			}
+		}
 		    
+		 List<Integer> numbers = new ArrayList<Integer>(
+			        Arrays.asList(5,3,1,2,9,5,0,7)
+			    );
+		 
+		 
 		ArrayList TestResultsarray = new ArrayList(); //Array of the answer locations    
-
+		
+		Splitdoublearray(SelectionTotal, 1);
+		
         
 		for(int j = 0; j < testresults.length;j++){
 			BasicDBObject Rvals = new BasicDBObject();
 			Rvals.put("numcorrect", testresults[j]);
 			Rvals.put("_id", new ObjectId());
-			Rvals.put("teststring" , "astring");
+			
 			TestResultsarray.add(Rvals); //add Rvals into the Testresultarray listarray
 //			System.out.println("Question " + j + " numcorrect = " + testresults[j]);
 		}
 		    
 //		System.out.println("TestResultsarray = " + TestResultsarray);
-//		BasicDBObject popresults = new BasicDBObject("TestResults", TestResultsarray);
-//		BasicDBObject set = new BasicDBObject("$set", popresults);
+		
+		//v1
+		BasicDBObject popresults = new BasicDBObject("TestResults", TestResultsarray);
+		BasicDBObject set = new BasicDBObject("$set", popresults);
 //		System.out.println("Test result query = " + popresults);
-		DBObject TestObject2 = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
-		TestObject2.put("TestResults", TestResultsarray);
-		coll.save(TestObject2);
-//		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set);
+		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set);
+		
+		//v2
+//		DBObject TestObject2 = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
+//		TestObject2.put("TestResults", TestResultsarray);
+//		coll.save(TestObject2);
+
 		
 		
 		
@@ -443,7 +485,44 @@ public class Test_gradingMongo {
 	
 	
 	
-	
+	public static void Splitdoublearray(int[][] whoelarray, int index){//index = question number
+		
+		
+		int arrayLength = whoelarray.length;
+		int newarraylenght = 1;
+		int numberOfElementsInArray = whoelarray[0].length;
+		
+		int [][] newArrayA = new int[newarraylenght][numberOfElementsInArray];
+		int[] arr = new int[4];
+////		for(int i = 0; i < newarraylenght; i++){
+////			for(int j = 0; j < 4; j++){
+//		int x = 7;
+//				newArrayA[0] = whoelarray[x];
+////			}
+////		}
+				
+		int x = 7;
+			for(int i = 0; i < arr.length; i++){
+//				for(int j = 0; j < 4; j++){
+				System.out.println("whole array = " + whoelarray[x][i]);
+					arr[i] = whoelarray[x][i];
+				}
+//			}	
+		
+		for(int i = 0; i < arr.length;i++){
+			System.out.println("arr = " + arr[i]);
+		}
+			
+			
+//		for(int i = 0 ; i < newArrayA.length; i++){
+//			for(int j = 0; j < newArrayA[0].length;j++){
+//				System.out.println("new array (" + i + "," + j +") selected = "+ newArrayA[i][j]);
+//			}
+//		}
+		
+		
+		
+	}// end of Splitdoublearray
 	
 	
 	

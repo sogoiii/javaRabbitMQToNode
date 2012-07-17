@@ -61,6 +61,8 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.util.PDFTextStripper;
 
 
+import Workers.CreatePDFWorker;
+
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.LuminanceSource;
@@ -84,6 +86,9 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.gridfs.GridFSDBFile;
+
+
+import TestingStuff.byStudent;
 
 public class Test_gradingMongo {
 
@@ -113,6 +118,11 @@ public class Test_gradingMongo {
         System.out.println("size of Questions = " + Questions.size());
         int numofquestions = Questions.size();
         System.out.println("size of answers = " + Answers.size());
+        int numofstudents = rootNode.get("NumberOfStudents").getIntValue(); //grab the number of students 
+	    System.out.println("Numer of students = " + numofstudents);
+        
+        
+        
 //        for(int x = 0; x < Answers.size(); x++){
 //   	
 //		   	int IDS = Answers.get(x).get("IDS").getIntValue(); //grab the question 
@@ -166,11 +176,14 @@ public class Test_gradingMongo {
 //		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded.pdf"); //to large, need to do some scaling
 //		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test_Inputs.pdf"); //working 
 		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded_Vsmaller.pdf");
+//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded_Vsmaller.pdf");
 		
 		PDDocument doc = PDDocument.load(PDF_file);//used to get page numbers
 	    int numpages = doc.getNumberOfPages(); //get page numbers for for loop
-	    int[] testresults = new int[Questions.size()]; //number of correct answers 
-	    System.out.println("result size = " + testresults.length);
+	    int[] CorrectlyAnswered = new int[Questions.size()]; //number of correct answers 
+	    int[] IncorrectlyAnswered = new int[Questions.size()]; //number of incorrectly answered responses
+	    byStudent bystudent = new byStudent(2); //create grading instance //initiaize with number of students 
+	    System.out.println("result size = " + CorrectlyAnswered.length);
 	    
 	    
 		 
@@ -321,7 +334,7 @@ public class Test_gradingMongo {
 					        
 					        
 
-						   	String QID = new String(Answers.get(Aindex).get("IDS").getTextValue()); //grab the question  ID
+						   	String QID = new String(Answers.get(Aindex).get("IDS").getTextValue()); //grab the question  ID 
 						   	int CorrectAnswerloc =Answers.get(Aindex).get("Answer").getIntValue(); //correct answer location
 						   	System.out.println("Correc answer loc = " + CorrectAnswerloc);
 						   	System.out.println("IDS = " + QID  + " QI = " + Aindex);
@@ -329,6 +342,7 @@ public class Test_gradingMongo {
 						   	int iscorrect = checkcorrectness(CorrectAnswerloc, maxIndex); 
 						   	
 						   	
+						   	//create the student selections by question found
 					        BasicDBObject newvals = new BasicDBObject();
 					        String Answersnum = new String("Answers." + Integer.toString(Aindex));
 					        newvals.put(Answersnum + ".found", 1);
@@ -342,27 +356,46 @@ public class Test_gradingMongo {
 					        
 //					        System.out.println("first character = " + QID.charAt(0));
 //					        System.out.println("last character = " + QID.charAt(2));
-					        int Qint = Aindex % numofquestions;
+					        
+				        	char stud = QID.charAt(0); //this is the student //QID starts at 1, not at 0 hence the negative
+				        	char Q = QID.charAt(2); // this is the question
+					        System.out.println("Student num = " + stud);
+					        System.out.println("Q num = " + Character.getNumericValue(Q-1));//QID starts at 1, not at 0 hence the negative
+					        
+					        //Aggregate information to create Test Results array
+					        int Qint = Aindex % numofquestions; //Qint = the question number of the test //should be equivalent to char Q
 					        if(iscorrect == 1){
-					        	
 					        	System.out.println("mod result = " + Qint);
 					        	System.out.println("Question = " + Qint + " is correct = " + iscorrect );
-					        	testresults[Qint] = testresults[Qint] + 1;
+					        	CorrectlyAnswered[Qint] = CorrectlyAnswered[Qint] + 1;
+					        	bystudent.IncrementCorrectlyAnswered(Character.getNumericValue(stud));
+					       
 					        }
-//					        else if(iscorrect == 0){ //wrong answer was selected // Selections
-					        	char stud = QID.charAt(0);
-					        	char Q = QID.charAt(2);
-						        System.out.println("Student num = " + stud);
-						        System.out.println("Q num = " + Character.getNumericValue(Q-1));
-					        	Selections[Character.getNumericValue(stud)][Qint] = maxIndex;
-					        	SelectionTotal[Qint][maxIndex] = SelectionTotal[Qint][maxIndex] + 1;
-//					        }
-					        
+					        else if(iscorrect == 0){ //wrong answer was selected // Selections
+					        	System.out.println("mod result = " + Qint);
+					        	System.out.println("Question = " + Qint + " is Incorrect = " + iscorrect );
+					            IncorrectlyAnswered[Qint] = IncorrectlyAnswered[Qint] + 1;
+					            bystudent.IncrementIncorrectlyAnswered(Character.getNumericValue(stud));
+					        }
 					        
 
+				        	Selections[Character.getNumericValue(stud)][Qint] = maxIndex;
+				        	SelectionTotal[Qint][maxIndex] = SelectionTotal[Qint][maxIndex] + 1;
+				        	bystudent.IncrementRepliedTo(Character.getNumericValue(stud));
 					        
 					        Aindex++; //index for looping through answer array 
 					/* END GRADE THE RESULTS!!! */ //  TestObject
+					        
+					        
+					        
+					        
+					        
+					        
+					        
+					        
+					        
+					        
+					        
 					        //draw the red circles
 					        CvPoint slectedcenter = new CvPoint(FilledBubbles[maxIndex][1].intValue(),FilledBubbles[maxIndex][2].intValue());
 					        cvCircle(ipl_subBubble_large,slectedcenter,FilledBubbles[maxIndex][3].intValue(), CvScalar.RED, 3,8,0);
@@ -406,51 +439,82 @@ public class Test_gradingMongo {
 					
 		
 		    }//end of for loop of pages
+		 
 		    
-		    
-		
+		 for(int i = 0; i < numofstudents;i++){   
+			 System.out.println("student" + i +"answered Correctly: " + bystudent.CorrectlyAnswered[i]  + " Questions");
+			 System.out.println("student" + i +"answered Incorrectly: " + bystudent.IncorrectlyAnswered[i]  + " Questions");
+			 System.out.println("student" + i +"answered: " + bystudent.RepliedTo[i]  + " Questions");
+		 }
+		 
+		 
+		 
+		//results by student and question
 		for(int i = 0; i < Selections.length; i++){
 			for(int j = 0; j < Selections[0].length;j++){
 				System.out.println("Student (" + i + "," + j +") selected = "+ Selections[i][j]);
 			}
 		}
 		
+		//results by question and reply
 		for(int i =0 ; i < SelectionTotal.length; i++){
 			for(int j = 0; j < SelectionTotal[0].length;j++){
 				System.out.println("Quesetion (" + i + "," + j +") selected = "+ SelectionTotal[i][j]);
 			}
 		}
 		    
-		 List<Integer> numbers = new ArrayList<Integer>(
-			        Arrays.asList(5,3,1,2,9,5,0,7)
-			    );
+//		 List<Integer> numbers = new ArrayList<Integer>(
+//			        Arrays.asList(5,3,1,2,9,5,0,7)
+//			    );
 		 
 		 
-		ArrayList TestResultsarray = new ArrayList(); //Array of the answer locations    
+		ArrayList<BasicDBObject> TestResultsarray = new ArrayList<BasicDBObject>(); //Array of the answer locations    
 		
-		Splitdoublearray(SelectionTotal, 1);
+//		Splitdoublearray(SelectionTotal, 1);//a  test to make the above fro loop a litte more efficient, can remove from production if not completed
 		
-        
-		for(int j = 0; j < testresults.length;j++){
+        //create Test Results
+		for(int j = 0; j < CorrectlyAnswered.length;j++){
 			BasicDBObject Rvals = new BasicDBObject();
-			Rvals.put("numcorrect", testresults[j]);
+			Rvals.put("SelectedWrongAnswer_0", SelectionTotal[j][0]);
+			Rvals.put("SelectedWrongAnswer_1", SelectionTotal[j][1]);
+			Rvals.put("SelectedWrongAnswer_2", SelectionTotal[j][2]);
+			Rvals.put("SelectedCorrectAnswer", SelectionTotal[j][3]);
+			Rvals.put("CorrectlyAnswered", CorrectlyAnswered[j]);
+			Rvals.put("IncorrectlyAnswered", IncorrectlyAnswered[j]);
 			Rvals.put("_id", new ObjectId());
-			
 			TestResultsarray.add(Rvals); //add Rvals into the Testresultarray listarray
-//			System.out.println("Question " + j + " numcorrect = " + testresults[j]);
+//			System.out.println("Question " + j + " numcorrect = " + CorrectlyAnswered[j]);
 		}
 		    
-//		System.out.println("TestResultsarray = " + TestResultsarray);
+		
+		ArrayList<BasicDBObject> TestResultbyStudent = new ArrayList<BasicDBObject>(); //Array of the answers by student 
+		for(int j = 0; j < bystudent.CorrectlyAnswered.length;j++){
+			BasicDBObject ByStudentVals = new BasicDBObject();
+			ByStudentVals.put("CorrectlyAnswered", bystudent.CorrectlyAnswered[j]);
+			ByStudentVals.put("IncorrectlyAnswered", bystudent.IncorrectlyAnswered[j]);
+			ByStudentVals.put("RepliedTo", bystudent.RepliedTo[j]);
+			ByStudentVals.put("_id", new ObjectId());
+			TestResultbyStudent.add(ByStudentVals); //add Rvals into the Testresultarray listarray
+//			System.out.println("Question " + j + " numcorrect = " + CorrectlyAnswered[j]);
+		}
+		
+		
+		
 		
 		//v1
-		BasicDBObject popresults = new BasicDBObject("TestResults", TestResultsarray);
-		BasicDBObject set = new BasicDBObject("$set", popresults);
-//		System.out.println("Test result query = " + popresults);
+		BasicDBObject TRbyQuestions = new BasicDBObject("TRbyQuestions", TestResultsarray);
+		BasicDBObject set = new BasicDBObject("$set", TRbyQuestions);
+//		System.out.println("Test result query = " + TRbyQuestions);
 		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set);
+		
+		
+		BasicDBObject TRbyStudent = new BasicDBObject("TRbyStudents", TestResultbyStudent);
+		BasicDBObject set1 = new BasicDBObject("$set", TRbyStudent);
+		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set1);
 		
 		//v2
 //		DBObject TestObject2 = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
-//		TestObject2.put("TestResults", TestResultsarray);
+//		TestObject2.put("CorrectlyAnswered", TestResultsarray);
 //		coll.save(TestObject2);
 
 		
@@ -504,7 +568,7 @@ public class Test_gradingMongo {
 		int x = 7;
 			for(int i = 0; i < arr.length; i++){
 //				for(int j = 0; j < 4; j++){
-				System.out.println("whole array = " + whoelarray[x][i]);
+				System.out.println("whole array " + i + " = " + whoelarray[x][i]);
 					arr[i] = whoelarray[x][i];
 				}
 //			}	
@@ -539,12 +603,16 @@ public class Test_gradingMongo {
 	public static int checkcorrectness(int userinput, int answer){ //1 equals correct, 0 equals wrong
 		//do assertions on expected values?
 		
+		int iscorrect = 0;
 
 		if(userinput == answer){
-			return 1;
+			iscorrect++;
+			System.out.println("from check correctness = "  + iscorrect);
+			return iscorrect;
 		}
 		else{
-			return 0;
+			System.out.println("from check correctness = "  + iscorrect);
+			return iscorrect;
 		}
 
 	}//end of checkcorrectness
@@ -600,14 +668,19 @@ public class Test_gradingMongo {
 		//  op.interpolate("spline");
 		//  op.colorspace("RGB");
 		  ConvertCmd convert = new ConvertCmd();
+//		  convert.setSearchPath("/usr/local/Cellar/imagemagick/6.7.7-6/bin/convert");
+//		  convert.setSearchPath("/usr/bin/convert");
+//		  convert.setSearchPath("/Volumes/Main Drive/Users/angellopozo/ImageMagick-6.7.8/bin/convert");
+//		  convert.setSearchPath("Users/angellopozo/ImageMagick-6.7.8/bin/convert");
+		  convert.setSearchPath("/usr/local/bin");
 		  Stream2BufferedImage s2b = new Stream2BufferedImage();
 		  convert.setOutputConsumer(s2b);
 		  convert.run(op);
-		  convert.createScript("myscript.sh",op);//debug`` line
+//		  convert.createScript("myscript.sh",op);//debug`` line
 		  BufferedImage aPDF_img = s2b.getImage(); //PDF_img is the pdf_image
 		  ImageIO.write(aPDF_img,"PNG",new File("Page_"+ (i+1) +"of_PDF.png"));//write whole pdf page to png
 		return aPDF_img;
-	}//end of ConvertPagetoImage`
+	}//end of ConvertPagetoImage
 	
 	
 	

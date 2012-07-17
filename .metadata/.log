@@ -1,0 +1,40 @@
+!SESSION 2012-07-16 15:46:09.839 -----------------------------------------------
+eclipse.buildId=2.9.2.201205071000-RELEASE
+java.version=1.6.0_29
+java.vendor=Apple Inc.
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -product com.springsource.sts.ide -keyring /Users/angellopozo/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product com.springsource.sts.ide -keyring /Users/angellopozo/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2012-07-16 15:47:42.845
+!MESSAGE System property http.proxyHost has been set to 127.0.0.1 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.core.net 1 0 2012-07-16 15:47:42.849
+!MESSAGE System property http.proxyPort has been set to 8118 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.core.net 1 0 2012-07-16 15:47:42.849
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.core.net 1 0 2012-07-16 15:47:42.850
+!MESSAGE System property https.proxyHost has been set to 127.0.0.1 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.core.net 1 0 2012-07-16 15:47:42.850
+!MESSAGE System property https.proxyPort has been set to 8118 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2012-07-16 15:51:35.007
+!MESSAGE CatalogItem org.eclipse.m2e.discovery.lifecyclemapping.m2e-egit does not contain lifecycle mapping metadata
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2012-07-16 15:51:35.007
+!MESSAGE CatalogItem org.eclipse.m2e.discovery.lifecyclemapping.m2e-cvs does not contain lifecycle mapping metadata
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2012-07-16 15:51:35.008
+!MESSAGE CatalogItem org.eclipse.m2e.discovery.lifecyclemapping.m2e-subversive does not contain lifecycle mapping metadata
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2012-07-16 15:51:35.009
+!MESSAGE CatalogItem org.eclipse.m2e.discovery.lifecyclemapping.m2e-subclipse does not contain lifecycle mapping metadata
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2012-07-16 15:51:35.010
+!MESSAGE CatalogItem org.eclipse.m2e.discovery.maven-runtime-3.0.3 does not contain lifecycle mapping metadata
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2012-07-16 15:51:35.022
+!MESSAGE CatalogItem org.codehaus.groovy.m2eclipse does not contain lifecycle mapping metadata

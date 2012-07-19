@@ -6,6 +6,7 @@ public class Question{
 
 	public String Question, Answer;
 	public String[] PossibleAnswers;
+	public int Answerlocation;
 	
 	
 	public  void setQuestion(String Q){

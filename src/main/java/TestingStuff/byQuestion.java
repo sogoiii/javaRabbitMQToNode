@@ -64,14 +64,14 @@ public class byQuestion {
 	public void ComputePercentCorrectlyAnswered(){
 		for(int i =0; i < PercentCorrectlyAnswered.length; i++){
 //			System.out.println("Computation = " + CorrectlyAnswered[i] + " / " + numS);
-			PercentCorrectlyAnswered[i] = (float) CorrectlyAnswered[i]/numS;
+			PercentCorrectlyAnswered[i] = ( (float) CorrectlyAnswered[i]/numS)*100;
 			System.out.println("Percent Correct = " + PercentCorrectlyAnswered[i]);
 		}//end of for loop	
 	}//end ComputePercentCorrectlyAnswered
 	
 	public void ComputePercentIncorrectlyAnswered(){
 		for(int i =0; i < PercentIncorrectlyAnswered.length; i++){
-			PercentIncorrectlyAnswered[i] = (float) IncorrectlyAnswered[i]/numS;
+			PercentIncorrectlyAnswered[i] = ( (float) IncorrectlyAnswered[i]/numS)*100;
 			System.out.println("Percent incorrect = " + PercentIncorrectlyAnswered[i]);
 		}//end of for loop	
 	}//end ComputePercentIncorrectlyAnswered

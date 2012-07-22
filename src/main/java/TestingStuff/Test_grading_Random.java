@@ -478,8 +478,7 @@ public class Test_grading_Random {
 		    
 		byquestion.ComputePercentCorrectlyAnswered();
 		byquestion.ComputePercentIncorrectlyAnswered();
-		
-		
+		byquestion.ComputeSTD();
 		 
 		//create Test Results by question
 		ArrayList<BasicDBObject> TestResultbyQuestion = new ArrayList<BasicDBObject>(); //Array of the answer locations    

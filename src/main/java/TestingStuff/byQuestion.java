@@ -1,15 +1,16 @@
 package TestingStuff;
 
+import org.apache.commons.math3.stat.StatUtils;
 public class byQuestion {
 	
-	public int[] CorrectlyAnswered;
+	public double[] CorrectlyAnswered;
 	public int[] IncorrectlyAnswered;
 	public int[] SelectedCorrectAnswer;
 	public int[] SelectedWrongAnswer_0;
 	public int[] SelectedWrongAnswer_1;
 	public int[] SelectedWrongAnswer_2;
-	public float[] PercentCorrectlyAnswered;
-	public float[] PercentIncorrectlyAnswered;
+	public float[] PercentCorrectlyAnswered; //this a specific question across student intput
+	public float[] PercentIncorrectlyAnswered; //for a specific question across student input
 	
 	private int numQ; //number of questions
 	private int numS; //number of students
@@ -18,7 +19,7 @@ public class byQuestion {
 		System.out.println("byquestion num of questions = " + numofquestions);
 		numQ = numofquestions;
 		numS = numofstudents;
-		CorrectlyAnswered = new int[numofquestions];
+		CorrectlyAnswered = new double[numofquestions];
 		IncorrectlyAnswered = new int[numofquestions];
 		SelectedCorrectAnswer = new int[numofquestions];
 		SelectedWrongAnswer_0 = new int[numofquestions];
@@ -26,6 +27,8 @@ public class byQuestion {
 		SelectedWrongAnswer_2 = new int[numofquestions];
 		PercentCorrectlyAnswered  = new float[numofquestions];
 		PercentIncorrectlyAnswered  = new float[numofquestions];
+	
+		
 	}//end of constructor
 	
 	public void IncrementCorrectlyAnswered(int Qint){
@@ -64,7 +67,7 @@ public class byQuestion {
 	public void ComputePercentCorrectlyAnswered(){
 		for(int i =0; i < PercentCorrectlyAnswered.length; i++){
 //			System.out.println("Computation = " + CorrectlyAnswered[i] + " / " + numS);
-			PercentCorrectlyAnswered[i] = ( (float) CorrectlyAnswered[i]/numS)*100;
+			PercentCorrectlyAnswered[i] = ( (float) CorrectlyAnswered[i]/numS)*100; //loss of data issue, if output is a float
 			System.out.println("Percent Correct = " + PercentCorrectlyAnswered[i]);
 		}//end of for loop	
 	}//end ComputePercentCorrectlyAnswered
@@ -76,6 +79,13 @@ public class byQuestion {
 		}//end of for loop	
 	}//end ComputePercentIncorrectlyAnswered
 	
+	
+	public void ComputeSTD(){
+		double variance = StatUtils.variance(CorrectlyAnswered);
+		double std = Math.sqrt(variance);
+		System.out.println("variance = " + variance + " and std = " + std);
+		
+	}//end of compute STD
 	
 	
 }//end of class

@@ -136,7 +136,7 @@ public class Test_grading_Random {
 		
 		
 		
-		JFrame frame = new JFrame(); //window popup //for debuggin
+//		JFrame frame = new JFrame(); //window popup //for debuggin
 		//reading in file
 //		File PDF_file = new File("/Users/angellopozo/Documents/TestImages/PDF_CRICLEV2.pdf");
 		
@@ -182,7 +182,8 @@ public class Test_grading_Random {
 	    int numpages = doc.getNumberOfPages(); //get page numbers for for loop
 	    int[] CorrectlyAnswered = new int[Questions.size()]; //number of correct answers 
 	    int[] IncorrectlyAnswered = new int[Questions.size()]; //number of incorrectly answered responses
-	    byStudent bystudent = new byStudent(2); //create grading instance //initiaize with number of students 
+	    byStudent bystudent = new byStudent(numofstudents); //create grading instance //Initialize with number of students 
+	    byQuestion byquestion = new byQuestion(numofquestions, numofstudents);
 	    System.out.println("result size = " + CorrectlyAnswered.length);
 	    
 	    
@@ -191,12 +192,12 @@ public class Test_grading_Random {
 		System.out.println("number of pages = " + numpages); //check to make sure the number of pages is reasonable, dont want this to be too large call Db and return
 		System.out.println("____________________________________");
 //		   JFrame frame = new JFrame(); //window popup 
-		ArrayList Results = new ArrayList(); //Array of the answer locations
-		ArrayList WA = new ArrayList(); //array of wrong answers that were selected by the students
-		ArrayList SR = new ArrayList(); //holding accumulated data below. selected answers array
+//		ArrayList Results = new ArrayList(); //Array of the answer locations
+//		ArrayList WA = new ArrayList(); //array of wrong answers that were selected by the students
+//		ArrayList SR = new ArrayList(); //holding accumulated data below. selected answers array
 		int numoffails = 0;
 		int Aindex = 0;
-		int Qindex = 0;
+//		int Qindex = 0;
 		int[][] Selections = new int[2][Questions.size()]; // student , question
 		int[][] SelectionTotal = new int[Questions.size()][4]; // question, answer selected
 		    for(int i = 0; i < numpages;i++){ //for every page
@@ -331,7 +332,7 @@ public class Test_grading_Random {
 					        int maxIndex = ReturnIndexOfmax(FilledBubbles);//maxindex = the answer submitted by the student 
 					        
 					        
-					/* GRADE THE RESULTS!!! */ //  TestObject =mongo query result, Aindex  = question being looked at
+		/* GRADE THE RESULTS!!! */ //  TestObject =mongo query result, Aindex  = question being looked at
 					        
 					        
 
@@ -365,28 +366,31 @@ public class Test_grading_Random {
 					        System.out.println("Q num = " + Character.getNumericValue(Q-1));//QID starts at 1, not at 0 hence the negative
 					        
 					        //Aggregate information to create Test Results array
-					        int Qint = Aindex % numofquestions; //Qint = the question number of the test //should be equivalent to char Q
+					        int Qint = Aindex % numofquestions; //Qint = the question number of the test -1(includes 0 hence the -1) //should be equivalent to char Q
 					        if(iscorrect == 1){
 					        	System.out.println("mod result = " + Qint);
 					        	System.out.println("Question = " + Qint + " is correct = " + iscorrect );
-					        	CorrectlyAnswered[Qint] = CorrectlyAnswered[Qint] + 1;
+					        	CorrectlyAnswered[Qint] = CorrectlyAnswered[Qint] + 1; // byquestion.IncrementCorrectlyAnswered(Qint);
+					        	byquestion.IncrementCorrectlyAnswered(Qint);
 					        	bystudent.IncrementCorrectlyAnswered(Character.getNumericValue(stud));
-					       
+					        	
 					        }
 					        else if(iscorrect == 0){ //wrong answer was selected // Selections
 					        	System.out.println("mod result = " + Qint);
 					        	System.out.println("Question = " + Qint + " is Incorrect = " + iscorrect );
-					            IncorrectlyAnswered[Qint] = IncorrectlyAnswered[Qint] + 1;
+					            IncorrectlyAnswered[Qint] = IncorrectlyAnswered[Qint] + 1; // byquestion.IncrementCorrectlyAnswered(Qint);
+					            byquestion.IncrementIncorrectlyAnswered(Qint);
 					            bystudent.IncrementIncorrectlyAnswered(Character.getNumericValue(stud));
 					        }
 					        
-
+					        byquestion.IncrementSelectedAnswer(maxIndex, Qint); //increment the number of times a selection was made
+					        
 				        	Selections[Character.getNumericValue(stud)][Qint] = maxIndex;
-				        	SelectionTotal[Qint][maxIndex] = SelectionTotal[Qint][maxIndex] + 1;
+				        	SelectionTotal[Qint][maxIndex] = SelectionTotal[Qint][maxIndex] + 1; //byquestion.IncrementSelectedWrongAnwer(Qint, maxIndex);
 				        	bystudent.IncrementRepliedTo(Character.getNumericValue(stud));
 					        
 					        Aindex++; //index for looping through answer array 
-					/* END GRADE THE RESULTS!!! */ //  TestObject
+		/* END GRADE THE RESULTS!!! */ //  TestObject
 					        
 					        
 					        
@@ -443,6 +447,7 @@ public class Test_grading_Random {
 		    }//end of for loop of pages
 		 
 		    
+		    //putput how well teh students performed on test
 		 for(int i = 0; i < numofstudents;i++){   
 			 System.out.println("student" + i +"answered Correctly: " + bystudent.CorrectlyAnswered[i]  + " Questions");
 			 System.out.println("student" + i +"answered Incorrectly: " + bystudent.IncorrectlyAnswered[i]  + " Questions");
@@ -460,35 +465,42 @@ public class Test_grading_Random {
 		
 		//results by question and reply
 		for(int i =0 ; i < SelectionTotal.length; i++){
+			System.out.println("Selection below = " + byquestion.SelectedWrongAnswer_0[i] + " " 
+					 + byquestion.SelectedWrongAnswer_1[i] + " "
+					 + byquestion.SelectedWrongAnswer_2[i] + " "
+					 + byquestion.SelectedCorrectAnswer[i] + " ");		
+			System.out.println("correctly answered = " + byquestion.CorrectlyAnswered[i] + " " + CorrectlyAnswered[i]);
 			for(int j = 0; j < SelectionTotal[0].length;j++){
 				System.out.println("Quesetion (" + i + "," + j +") selected = "+ SelectionTotal[i][j]);
 			}
-		}
+
+		}//end of selctiontotal for loop
 		    
-//		 List<Integer> numbers = new ArrayList<Integer>(
-//			        Arrays.asList(5,3,1,2,9,5,0,7)
-//			    );
-		 
-		 
-		ArrayList<BasicDBObject> TestResultsarray = new ArrayList<BasicDBObject>(); //Array of the answer locations    
+		byquestion.ComputePercentCorrectlyAnswered();
+		byquestion.ComputePercentIncorrectlyAnswered();
 		
-//		Splitdoublearray(SelectionTotal, 1);//a  test to make the above fro loop a litte more efficient, can remove from production if not completed
 		
-        //create Test Results
-		for(int j = 0; j < CorrectlyAnswered.length;j++){
-			BasicDBObject Rvals = new BasicDBObject();
-			Rvals.put("SelectedWrongAnswer_0", SelectionTotal[j][0]);
-			Rvals.put("SelectedWrongAnswer_1", SelectionTotal[j][1]);
-			Rvals.put("SelectedWrongAnswer_2", SelectionTotal[j][2]);
-			Rvals.put("SelectedCorrectAnswer", SelectionTotal[j][3]);
-			Rvals.put("CorrectlyAnswered", CorrectlyAnswered[j]);
-			Rvals.put("IncorrectlyAnswered", IncorrectlyAnswered[j]);
-			Rvals.put("_id", new ObjectId());
-			TestResultsarray.add(Rvals); //add Rvals into the Testresultarray listarray
+		 
+		//create Test Results by question
+		ArrayList<BasicDBObject> TestResultbyQuestion = new ArrayList<BasicDBObject>(); //Array of the answer locations    
+		for(int j = 0; j < byquestion.CorrectlyAnswered.length;j++){
+			BasicDBObject ByQuestionVals = new BasicDBObject();
+			ByQuestionVals.put("SelectedWrongAnswer_0", byquestion.SelectedWrongAnswer_0[j]);
+			ByQuestionVals.put("SelectedWrongAnswer_1", byquestion.SelectedWrongAnswer_1[j]);
+			ByQuestionVals.put("SelectedWrongAnswer_2", byquestion.SelectedWrongAnswer_2[j]);
+			ByQuestionVals.put("SelectedCorrectAnswer", byquestion.SelectedCorrectAnswer[j]);
+			ByQuestionVals.put("CorrectlyAnswered", byquestion.CorrectlyAnswered[j]);
+			ByQuestionVals.put("IncorrectlyAnswered", byquestion.IncorrectlyAnswered[j]);
+			ByQuestionVals.put("PercentCorrect", byquestion.PercentCorrectlyAnswered[j]);
+			ByQuestionVals.put("PercentIncorrect", byquestion.PercentIncorrectlyAnswered[j]);
+			ByQuestionVals.put("_id", new ObjectId());
+			TestResultbyQuestion.add(ByQuestionVals); //add Rvals into the Testresultarray listarray
 //			System.out.println("Question " + j + " numcorrect = " + CorrectlyAnswered[j]);
 		}
 		    
 		
+		
+		//create Test Results by  student
 		ArrayList<BasicDBObject> TestResultbyStudent = new ArrayList<BasicDBObject>(); //Array of the answers by student 
 		for(int j = 0; j < bystudent.CorrectlyAnswered.length;j++){
 			BasicDBObject ByStudentVals = new BasicDBObject();
@@ -504,7 +516,7 @@ public class Test_grading_Random {
 		
 		
 		//v1
-		BasicDBObject TRbyQuestions = new BasicDBObject("TRbyQuestions", TestResultsarray);
+		BasicDBObject TRbyQuestions = new BasicDBObject("TRbyQuestions", TestResultbyQuestion);
 		BasicDBObject set = new BasicDBObject("$set", TRbyQuestions);
 //		System.out.println("Test result query = " + TRbyQuestions);
 		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set);

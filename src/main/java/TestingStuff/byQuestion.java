@@ -11,6 +11,12 @@ public class byQuestion {
 	public int[] SelectedWrongAnswer_2;
 	public float[] PercentCorrectlyAnswered; //this a specific question across student intput
 	public float[] PercentIncorrectlyAnswered; //for a specific question across student input
+	public double[] ScoreDefault;//list of the score value for any question
+//	public double[] ScoreResult;//
+	public double[][] Scoresbystudent; //list of scores across students (num students)*(num questions)
+	public double[][] Scoresbyquestion; //list of scores across students (num questions)*(num students)
+	public double[] ScoreMean; //average score for a question across every student
+	public double[] STD;
 	
 	private int numQ; //number of questions
 	private int numS; //number of students
@@ -27,9 +33,43 @@ public class byQuestion {
 		SelectedWrongAnswer_2 = new int[numofquestions];
 		PercentCorrectlyAnswered  = new float[numofquestions];
 		PercentIncorrectlyAnswered  = new float[numofquestions];
-	
+		ScoreDefault = new double[numofquestions]; //list of scores for each question
+		Scoresbystudent = new double[numofstudents][numofquestions];//list of scores by student
+		Scoresbyquestion = new double[numofquestions][numofstudents];//list of scores by question
+		ScoreMean = new double[numofquestions]; // for any one question, what was the average score
+		STD = new double[numQ];
 		
 	}//end of constructor
+	
+	
+	public void InsertScore(int stud, int quest){//insert the result from the test
+		Scoresbystudent[stud][quest] = ScoreDefault[quest];
+		Scoresbyquestion[quest][stud] = ScoreDefault[quest];
+	}
+	
+	public void ComputeMeanScoreByQuestion(){
+		
+//		for(int i = 0; i < numQ; i++){//i = the question
+//			double[] ScorbyQ = new double[numQ];
+//			for(int j = 0; j < numS;j++){ //j = the student
+//				ScorbyQ[i] = Scores[j][i];
+//			}
+//		}
+		
+		for(int i = 0; i < numQ;i++){
+			ScoreMean[i] = StatUtils.mean(Scoresbyquestion[i]);
+			System.out.println("Mean Score by question = " + ScoreMean[i] );
+		}//end of for
+	}//end of ComputeMean by question
+	
+	
+	public void ComputeMeanScoreByStudent(){
+		for(int i = 0; i < numS;i++){
+			ScoreMean[i] = StatUtils.mean(Scoresbystudent[i]);
+			System.out.println("Mean Score by student = " + ScoreMean[i] );
+		}//end of for
+	}//end of computemeanbystudent
+	
 	
 	public void IncrementCorrectlyAnswered(int Qint){
 //		System.out.println("class correctlyasnwered for question " + Qint  + " was = " +CorrectlyAnswered[Qint]);
@@ -80,12 +120,21 @@ public class byQuestion {
 	}//end ComputePercentIncorrectlyAnswered
 	
 	
-	public void ComputeSTD(){
+	public void ComputePercentCorrectSTD(){
 		double variance = StatUtils.variance(CorrectlyAnswered);
 		double std = Math.sqrt(variance);
 		System.out.println("variance = " + variance + " and std = " + std);
-		
 	}//end of compute STD
+	
+	public void ComputeMeanbyQuestionSTD(){
+		for(int i = 0; i < numQ;i++){
+			double variance = StatUtils.variance(Scoresbyquestion[i]);
+			STD[i] = Math.sqrt(variance);
+			System.out.println("Mean by Question variance = " + variance + " and std = " + STD[i]);
+		}
+	}//end computemeanbyquestionstd
+	
+	
 	
 	
 }//end of class

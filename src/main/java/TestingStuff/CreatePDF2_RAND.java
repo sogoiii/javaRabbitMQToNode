@@ -89,6 +89,7 @@ public class CreatePDF2_RAND {
 		
 		
 		String message = "4fda1af52f910cc6200000d3"; //test id, that i will have in the real version
+//		String message = "500bb8811a316fda2400003b" ;// this one has a score associatd with it
 //		BasicDBObject keys = new BasicDBObject(); //create search object, keys will be what is returned
 //        keys.put("Questions",1); //tell mongo to grab key, this is still a setup
 //        DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) , keys ); //the actual mongo query
@@ -280,7 +281,7 @@ public class CreatePDF2_RAND {
 		     studentindex++; //add to student index
 		     
 		 }//end of numofstudents for loop
-		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random.pdf"); //save to my file system so i can see it
+		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore.pdf"); //save to my file system so i can see it
 		//v1
 //		QuestionObjects.put("Answers", QI_SNTOT); //v1 
 		
@@ -312,7 +313,7 @@ public class CreatePDF2_RAND {
 		GridFS gfsPhoto = new GridFS(db, "fs");
 		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
 		gfsFile.setContentType("binary/octet-stream");
-		gfsFile.setFilename("CreatedPDF_Mongo_Random.pdf");
+		gfsFile.setFilename("CreatedPDF_Mongo_Random_withScore.pdf");
 		gfsFile.save();
 
 		

@@ -120,7 +120,10 @@ public class Test_grading_Random {
         System.out.println("size of answers = " + TestAnswerSheet.size());
         int numofstudents = rootNode.get("NumberOfStudents").getIntValue(); //grab the number of students 
 	    System.out.println("Numer of students = " + numofstudents);
-        
+	   
+	    
+
+//	    FillScore(Questions);
         
         
 //        for(int x = 0; x < Answers.size(); x++){
@@ -182,10 +185,14 @@ public class Test_grading_Random {
 	    int numpages = doc.getNumberOfPages(); //get page numbers for for loop
 	    int[] CorrectlyAnswered = new int[Questions.size()]; //number of correct answers 
 	    int[] IncorrectlyAnswered = new int[Questions.size()]; //number of incorrectly answered responses
-	    byStudent bystudent = new byStudent(numofstudents); //create grading instance //Initialize with number of students 
+	    byStudent bystudent = new byStudent(numofquestions, numofstudents); //create grading instance //Initialize with number of students 
 	    byQuestion byquestion = new byQuestion(numofquestions, numofstudents);
 	    System.out.println("result size = " + CorrectlyAnswered.length);
-	    
+	    //need to fill the score array in byquestions
+		for(int i = 0; i < Questions.size();i++){
+			System.out.println("Score for this question = " + Questions.get(i).get("Score").getDoubleValue()); 
+			byquestion.ScoreDefault[i] = Questions.get(i).get("Score").getDoubleValue();
+		}//end of filling score array in byquestion
 	    
 		 
 //		int numpages = decode_pdf.getPageCount(); //get page numbers for for loop
@@ -367,13 +374,14 @@ public class Test_grading_Random {
 					        
 					        //Aggregate information to create Test Results array
 					        int Qint = Aindex % numofquestions; //Qint = the question number of the test -1(includes 0 hence the -1) //should be equivalent to char Q
+//					        System.out.println("Score for this question = " + Questions.get(Qint).get("Score").getDoubleValue()); 
 					        if(iscorrect == 1){
 					        	System.out.println("mod result = " + Qint);
 					        	System.out.println("Question = " + Qint + " is correct = " + iscorrect );
 					        	CorrectlyAnswered[Qint] = CorrectlyAnswered[Qint] + 1; // byquestion.IncrementCorrectlyAnswered(Qint);
 					        	byquestion.IncrementCorrectlyAnswered(Qint);
 					        	bystudent.IncrementCorrectlyAnswered(Character.getNumericValue(stud));
-					        	
+					        	byquestion.InsertScore(Character.getNumericValue(stud), Qint);
 					        }
 					        else if(iscorrect == 0){ //wrong answer was selected // Selections
 					        	System.out.println("mod result = " + Qint);
@@ -478,7 +486,12 @@ public class Test_grading_Random {
 		    
 		byquestion.ComputePercentCorrectlyAnswered();
 		byquestion.ComputePercentIncorrectlyAnswered();
-		byquestion.ComputeSTD();
+		byquestion.ComputePercentCorrectSTD();
+		byquestion.ComputeMeanScoreByQuestion(); //average score for any question by question
+		byquestion.ComputeMeanScoreByStudent(); //average score for any one question by student
+		byquestion.ComputeMeanbyQuestionSTD();
+		bystudent.ComputeTotalScores(byquestion.Scoresbystudent);//compute the total scores for any student
+		bystudent.ComputeMeanTotalScore(byquestion.Scoresbystudent);
 		 
 		//create Test Results by question
 		ArrayList<BasicDBObject> TestResultbyQuestion = new ArrayList<BasicDBObject>(); //Array of the answer locations    
@@ -492,6 +505,8 @@ public class Test_grading_Random {
 			ByQuestionVals.put("IncorrectlyAnswered", byquestion.IncorrectlyAnswered[j]);
 			ByQuestionVals.put("PercentCorrect", byquestion.PercentCorrectlyAnswered[j]);
 			ByQuestionVals.put("PercentIncorrect", byquestion.PercentIncorrectlyAnswered[j]);
+			ByQuestionVals.put("STD", byquestion.STD[j]);
+			ByQuestionVals.put("Mean", byquestion.ScoreMean[j]);
 			ByQuestionVals.put("_id", new ObjectId());
 			TestResultbyQuestion.add(ByQuestionVals); //add Rvals into the Testresultarray listarray
 //			System.out.println("Question " + j + " numcorrect = " + CorrectlyAnswered[j]);
@@ -506,6 +521,8 @@ public class Test_grading_Random {
 			ByStudentVals.put("CorrectlyAnswered", bystudent.CorrectlyAnswered[j]);
 			ByStudentVals.put("IncorrectlyAnswered", bystudent.IncorrectlyAnswered[j]);
 			ByStudentVals.put("RepliedTo", bystudent.RepliedTo[j]);
+			ByStudentVals.put("ScoreTotal", bystudent.ScoreTotal[j]);
+			ByStudentVals.put("ScoreMean", bystudent.ScoreMean[j]);
 			ByStudentVals.put("_id", new ObjectId());
 			TestResultbyStudent.add(ByStudentVals); //add Rvals into the Testresultarray listarray
 //			System.out.println("Question " + j + " numcorrect = " + CorrectlyAnswered[j]);
@@ -557,6 +574,30 @@ public class Test_grading_Random {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+//	private static void FillScore(JsonNode Questions){
+//		for(int i = 0; i < Questions.size();i++){
+//			System.out.println("Score for this question = " + Questions.get(i).get("Score").getDoubleValue()); 
+//			byquestion.Score
+//		}
+//	}//end fill Score
 	
 	
 	

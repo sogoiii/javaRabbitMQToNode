@@ -58,17 +58,17 @@ public class byQuestion {
 		
 		for(int i = 0; i < numQ;i++){
 			ScoreMean[i] = StatUtils.mean(Scoresbyquestion[i]);
-			System.out.println("Mean Score by question = " + ScoreMean[i] );
+			System.out.println("Mean Score by question = " + ScoreMean[i]);
 		}//end of for
 	}//end of ComputeMean by question
 	
 	
-	public void ComputeMeanScoreByStudent(){
-		for(int i = 0; i < numS;i++){
-			ScoreMean[i] = StatUtils.mean(Scoresbystudent[i]);
-			System.out.println("Mean Score by student = " + ScoreMean[i] );
-		}//end of for
-	}//end of computemeanbystudent
+//	public void ComputeMeanScoreByStudent(){ //this is using ScoreMean which is overidding older data
+//		for(int i = 0; i < numS;i++){
+//			ScoreMean[i] = StatUtils.mean(Scoresbystudent[i]);
+//			System.out.println("Mean Score by student = " + ScoreMean[i] );
+//		}//end of for
+//	}//end of computemeanbystudent
 	
 	
 	public void IncrementCorrectlyAnswered(int Qint){

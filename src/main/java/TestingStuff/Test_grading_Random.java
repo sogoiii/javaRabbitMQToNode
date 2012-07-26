@@ -488,7 +488,7 @@ public class Test_grading_Random {
 		byquestion.ComputePercentIncorrectlyAnswered();
 		byquestion.ComputePercentCorrectSTD();
 		byquestion.ComputeMeanScoreByQuestion(); //average score for any question by question
-		byquestion.ComputeMeanScoreByStudent(); //average score for any one question by student
+//		byquestion.ComputeMeanScoreByStudent(); //average score for any one question by student
 		byquestion.ComputeMeanbyQuestionSTD();
 		bystudent.ComputeTotalScores(byquestion.Scoresbystudent);//compute the total scores for any student
 		bystudent.ComputeMeanTotalScore(byquestion.Scoresbystudent);

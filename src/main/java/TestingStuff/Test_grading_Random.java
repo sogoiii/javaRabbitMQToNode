@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -520,15 +521,19 @@ public class Test_grading_Random {
 		}
 		    
 		//create Test Results by test
-		ArrayList<BasicDBObject> TestResultbyTest = new ArrayList<BasicDBObject>(); //Array of the answer locations 
 		BasicDBObject ByTestVals = new BasicDBObject();
 		ByTestVals.put("Mean", bytest.ScoreMean);
 		ByTestVals.put("STD", bytest.ScoreSTD);
 		ByTestVals.put("PercentCorrect", bytest.PercentCorrectlyAnswered);
 		ByTestVals.put("PercentInorrect", bytest.PercentIncorrectlyAnswered);
 		ByTestVals.put("_id", new ObjectId());
-		TestResultbyTest.add(ByTestVals); 
 		
+		//create graded exists
+		BasicDBObject TestGradedVals = new BasicDBObject();
+		TestGradedVals.put("WasGraded", 1);
+		Date now = new Date();
+		TestGradedVals.put("GradeOn", now);
+		TestGradedVals.put("_id", new ObjectId());
 		
 		//create Test Results by  student
 		ArrayList<BasicDBObject> TestResultbyStudent = new ArrayList<BasicDBObject>(); //Array of the answers by student 
@@ -556,6 +561,10 @@ public class Test_grading_Random {
 		BasicDBObject TRbyTest = new BasicDBObject("TRbyTest", ByTestVals);
 		BasicDBObject settest = new BasicDBObject("$set", TRbyTest);
 		coll.update(new BasicDBObject("_id", new ObjectId(message)),  settest);
+		
+		BasicDBObject TestGradedobject = new BasicDBObject("TestGraded", TestGradedVals);
+		BasicDBObject settestgraded = new BasicDBObject("$set", TestGradedobject);
+		coll.update(new BasicDBObject("_id", new ObjectId(message)),  settestgraded);
 		
 		BasicDBObject TRbyStudent = new BasicDBObject("TRbyStudents", TestResultbyStudent);
 		BasicDBObject set1 = new BasicDBObject("$set", TRbyStudent);

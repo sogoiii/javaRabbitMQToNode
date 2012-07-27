@@ -57,6 +57,7 @@ import org.im4java.core.IMOperation;
 import org.im4java.core.Stream2BufferedImage;
 import org.jpedal.PdfDecoder;
 import org.jpedal.exception.PdfException;
+import org.jpedal.objects.PdfFileInformation;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.util.PDFTextStripper;
@@ -112,7 +113,8 @@ public class Test_grading_Random {
 		ObjectMapper mapper = new ObjectMapper(); 
 	
 		
-		String message = "4fda1af52f910cc6200000d3"; //test id, that i will have in the real version
+//		String message = "4fda1af52f910cc6200000d3"; //test id, that i will have in the real version
+		String message = "500bb8811a316fda2400003b"; //id of second test
 		DBObject TestObject = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
         System.out.println("Test Object = " + TestObject);
         JsonNode rootNode = mapper.readValue(TestObject.toString().getBytes("UTF-8"), JsonNode.class);
@@ -170,6 +172,13 @@ public class Test_grading_Random {
 ////			frame.pack();
 //////			frame.setLocationRelativeTo(null);
 ////			frame.setVisible(true);
+//	      PdfFileInformation fileinfo = decode_pdf.getFileInformationData();
+//	      String[] Fnames = fileinfo.getFieldValues();
+//	      for(int i = 0 ; i < Fnames.length; i++){
+//	    	  System.out.println("fname info = " + Fnames[i]);
+//	      }
+//	      System.out.println("xml data = " + fileinfo.getFileXMLMetaData());
+//	      System.out.println("name of the input stream file = " + decode_pdf.getFileName());
 //	      }
 //	      catch(PdfException e) {
 //			    e.printStackTrace();//return back and do the rpc to the user ... use return and check returns?
@@ -181,10 +190,13 @@ public class Test_grading_Random {
 		
 //		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded.pdf"); //to large, need to do some scaling
 //		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test_Inputs.pdf"); //working 
-		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Grade_Random.pdf");
+//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Grade_Random.pdf");
 //		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded_Vsmaller.pdf");
-		
-		PDDocument doc = PDDocument.load(PDF_file);//used to get page numbers
+//	    File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore_testnum2_Grade_LARGE.pdf");
+//	    File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore_testnum2_Grade_LARGE_MISTAKES_doubles.pdf");
+	    File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore_testnum2_Grade_LARGE_MISTAKES_noreply.pdf");
+	    
+	    PDDocument doc = PDDocument.load(PDF_file);//used to get page numbers
 	    int numpages = doc.getNumberOfPages(); //get page numbers for for loop
 	    int[] CorrectlyAnswered = new int[Questions.size()]; //number of correct answers 
 	    int[] IncorrectlyAnswered = new int[Questions.size()]; //number of incorrectly answered responses
@@ -193,7 +205,7 @@ public class Test_grading_Random {
 	    System.out.println("result size = " + CorrectlyAnswered.length);
 	    //need to fill the score array in byquestions
 		for(int i = 0; i < Questions.size();i++){
-			System.out.println("Score for this question = " + Questions.get(i).get("Score").getDoubleValue()); 
+//			System.out.println("Score for this question = " + Questions.get(i).get("Score").getDoubleValue()); 
 			byquestion.ScoreDefault[i] = Questions.get(i).get("Score").getDoubleValue();
 		}//end of filling score array in byquestion
 	    
@@ -313,7 +325,7 @@ public class Test_grading_Random {
 						        int radius = Math.round(xyr.z());
 						        cvCircle(ipl_subBubble_large, center, 3, CvScalar.GREEN, -1, 8, 0);//center of circle
 						        cvCircle(ipl_subBubble_large, center, radius, CvScalar.BLUE, 3, 8, 0);//outer circle
-						        FilledBubbles[j][0] = FindBubbleSelected(center, radius, ipl_subBubble_gray);
+						        FilledBubbles[j][0] = FindBubbleSelected(center, radius, ipl_subBubble_gray); //bubble selected area
 //						        FilledBubbles[j][0] = 1; //here to get rid of dimensions error
 						        FilledBubbles[j][1] = Math.round(center.x());
 						        FilledBubbles[j][2] = Math.round(center.y());
@@ -322,13 +334,13 @@ public class Test_grading_Random {
 							}//end of look for circles for
 							
 							
-							//the algorithm may not find circles 
-							int anynull = anynulls(FilledBubbles);
-//							System.out.println("anynull = "+ anynull);
-							if(anynull == 1){
-								numoffails++;
-								continue; //this question, not all circles were found.
-							}//end of null check //this means not all 4 circles were found
+//							//the algorithm may not find circles //was trying to fix an old error, solved it by fixing th size of the image on hte pdf to image conversion
+//							int anynull = anynulls(FilledBubbles);
+////							System.out.println("anynull = "+ anynull);
+//							if(anynull == 1){
+//								numoffails++;
+//								continue; //this question, not all circles were found.
+//							}//end of null check //this means not all 4 circles were found
 							
 //							System.out.println("filled bubbles size = " + FilledBubbles[0].length);
 //							System.out.println("filled bubbles size = " + FilledBubbles.length);
@@ -339,8 +351,21 @@ public class Test_grading_Random {
 //					        	System.out.println("Filled bubble Count = "+ tp[0] + " loc = "+ tp[1]);
 //					        }
 					        
-					        int maxIndex = ReturnIndexOfmax(FilledBubbles);//maxindex = the answer submitted by the student 
 					        
+					        
+					        int[] selectResult = ReturnIndexOfmax(FilledBubbles);//maxindex = the answer submitted by the student 
+					        int maxIndex = selectResult[0];
+					        int isfound = 1;
+					        int ismulti = 0;
+					        if(selectResult[1] > 1 || selectResult[2] == 1){ //selectResult[1] = number of bubbles selected by student
+					        	System.out.println("more than one bubble was selected");
+//					        	Aindex++; //index for looping through answer array //need to be incremented to keep data correct
+//					        	index++; //(0-number of questions) //need to be incremented to keep data correct
+//					        	numoffails++; //student selected too many inputs, hence trying to cheat and 
+						        isfound = 0;
+						        ismulti = 1;			        	
+//					        	continue;
+					        }//end of slectResults[1] if
 					        
 		/* GRADE THE RESULTS!!! */ //  TestObject =mongo query result, Aindex  = question being looked at
 					        
@@ -352,15 +377,21 @@ public class Test_grading_Random {
 						   	System.out.println("Correc answer location = " + CorrectAnswerloc);
 						   	System.out.println("IDS = " + QID  + " QI = " + Aindex);
 						   	
-						   	int iscorrect = checkcorrectness(CorrectAnswerloc, maxIndex); 
-						   	
+						   	int iscorrect = 0;
+						   	if(ismulti == 1){//if multiple selected
+						   		iscorrect = 0;
+						   	}
+						   	else{ //if only one input for a question is found
+						   		iscorrect = checkcorrectness(CorrectAnswerloc, maxIndex); 
+						   	}
 						   	
 						   	//create the student selections by question found
 					        BasicDBObject newvals = new BasicDBObject();
 					        String Answersnum = new String("TestAnswerSheet." + Integer.toString(Aindex));
-					        newvals.put(Answersnum + ".found", 1);
-					        newvals.put(Answersnum + ".correct", iscorrect);
-					        newvals.put(Answersnum + ".selected", maxIndex);
+					        newvals.put(Answersnum + ".found", isfound);
+					        newvals.put(Answersnum + ".multiselect", ismulti);
+//					        newvals.put(Answersnum + ".correct", iscorrect);
+//					        newvals.put(Answersnum + ".selected", maxIndex);
 					        BasicDBObject posop = new BasicDBObject("$set", newvals);
 					        System.out.println("inc query = " + posop.toString());
 					        coll.update(new BasicDBObject("_id", new ObjectId(message)), posop);
@@ -386,7 +417,7 @@ public class Test_grading_Random {
 					        	bystudent.IncrementCorrectlyAnswered(Character.getNumericValue(stud));
 					        	byquestion.InsertScore(Character.getNumericValue(stud), Qint);
 					        }
-					        else if(iscorrect == 0){ //wrong answer was selected // Selections
+					        else if(iscorrect == 0){ //wrong answer was selected // Selections // or multiple selections
 					        	System.out.println("mod result = " + Qint);
 					        	System.out.println("Question = " + Qint + " is Incorrect = " + iscorrect );
 					            IncorrectlyAnswered[Qint] = IncorrectlyAnswered[Qint] + 1; // byquestion.IncrementCorrectlyAnswered(Qint);
@@ -743,8 +774,10 @@ public class Test_grading_Random {
 		 IMOperation op = new IMOperation();		  
 		  op.addImage(afile.getAbsolutePath()+"["+i+"]"); //look at myscript.sh
 		  op.colorspace("RGB");
+		  op.resize(640, 830);
 		  op.type("TrueColor");
 		  op.addImage("jpg:-"); //place holder for output file
+		  
 
 		 // op.alpha("off"); //this command is slow and not needed anymore
 		//  op.interpolate("spline");
@@ -788,28 +821,44 @@ public class Test_grading_Random {
 			}//end of y loop
 		}//end of x loop
 		
-	
+//		System.out.println("area of bubble = " + FilledArea);
 		return FilledArea;
 	}//end of FindBubbleSelected
 	
 	
 	
-	 public static int ReturnIndexOfmax(Integer[][] ar){
+	 public static int[] ReturnIndexOfmax(Integer[][] ar){
 			int max = ar[0][0];
 			int index = 0;
 			int count = 0;
+			int numselected = 0;
+			int[] out = new int[3];//declare out array
 			for(Integer[] inter : ar){
+				System.out.println("inter[0] = " + inter[0] );
+				if(inter[0] >= 3000){
+					numselected++;
+				}
 				if(inter[0]>max){
 					max = inter[0];
 					index = count;
 				}
 				count++;
 			}
-			
 //			System.out.println("Max found in this array = "+index);
 			System.out.println("answer selected = " + index);
+			out[0] = index;
+			out[1] = numselected;			
 			
-			return index;
+			System.out.println("area of selected box = " + ar[index][0]);
+			if(ar[index][0] < 3000){ //if the number of pixels is less than 3000, then non of them were selected
+				out[2] = 1;
+			}
+			else{
+				out[2] = 0;
+			}
+			
+
+			return out;
 		}//end of ReturnIndexOfMax
 		
 	 

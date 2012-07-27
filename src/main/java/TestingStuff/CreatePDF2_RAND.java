@@ -88,8 +88,8 @@ public class CreatePDF2_RAND {
 		ObjectMapper mapper = new ObjectMapper(); 
 		
 		
-		String message = "4fda1af52f910cc6200000d3"; //test id, that i will have in the real version
-//		String message = "500bb8811a316fda2400003b" ;// this one has a score associatd with it
+//		String message = "4fda1af52f910cc6200000d3"; //test id, that i will have in the real version
+		String message = "500bb8811a316fda2400003b" ;// this one has a score associatd with it
 //		BasicDBObject keys = new BasicDBObject(); //create search object, keys will be what is returned
 //        keys.put("Questions",1); //tell mongo to grab key, this is still a setup
 //        DBObject QuestionObjects = coll.findOne(new BasicDBObject("_id", new ObjectId(message)) , keys ); //the actual mongo query
@@ -256,9 +256,10 @@ public class CreatePDF2_RAND {
 				        BasicDBObject Answer = new BasicDBObject("Answer", QA[Qnum - 1].Answerlocation); // in need to assert that this is equal and less than 3 but equal and greatr to 0
 				        Answer.put("found", 0);
 				        Answer.put("IDS",qrCodeText);
+				        Answer.put("multiselect", 0);
 				        Answer.put("_id", new ObjectId());
-				        Answer.put("selected", null);
-				        Answer.put("correct", null);
+//				        Answer.put("selected", null);
+//				        Answer.put("correct", null);
 				        AnswerLocs.add(Answer); //v3
 
 				        

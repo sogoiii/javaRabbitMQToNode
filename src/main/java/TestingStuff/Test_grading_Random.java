@@ -89,6 +89,8 @@ import com.mongodb.gridfs.GridFSDBFile;
 
 
 import TestingStuff.byStudent;
+import TestingStuff.byTest;
+import TestingStuff.byQuestion;
 
 public class Test_grading_Random {
 
@@ -492,6 +494,11 @@ public class Test_grading_Random {
 		byquestion.ComputeMeanbyQuestionSTD();
 		bystudent.ComputeTotalScores(byquestion.Scoresbystudent);//compute the total scores for any student
 		bystudent.ComputeMeanTotalScore(byquestion.Scoresbystudent);
+		byTest bytest = new byTest(numofquestions, numofstudents, bystudent);
+		bytest.ComputeMeanScoreTest();
+		bytest.ComputeMeanScoreSTD();
+		bytest.ComputePercentCorrecltyAnswered();
+		bytest.ComputePercentIncorrecltyAnswered();
 		 
 		//create Test Results by question
 		ArrayList<BasicDBObject> TestResultbyQuestion = new ArrayList<BasicDBObject>(); //Array of the answer locations    
@@ -506,12 +513,21 @@ public class Test_grading_Random {
 			ByQuestionVals.put("PercentCorrect", byquestion.PercentCorrectlyAnswered[j]);
 			ByQuestionVals.put("PercentIncorrect", byquestion.PercentIncorrectlyAnswered[j]);
 			ByQuestionVals.put("STD", byquestion.STD[j]);
-			ByQuestionVals.put("Mean", byquestion.ScoreMean[j]);
+			ByQuestionVals.put("Mean", byquestion.ScoreMean[j]);//means score for this question 
 			ByQuestionVals.put("_id", new ObjectId());
 			TestResultbyQuestion.add(ByQuestionVals); //add Rvals into the Testresultarray listarray
 //			System.out.println("Question " + j + " numcorrect = " + CorrectlyAnswered[j]);
 		}
 		    
+		//create Test Results by test
+		ArrayList<BasicDBObject> TestResultbyTest = new ArrayList<BasicDBObject>(); //Array of the answer locations 
+		BasicDBObject ByTestVals = new BasicDBObject();
+		ByTestVals.put("Mean", bytest.ScoreMean);
+		ByTestVals.put("STD", bytest.ScoreSTD);
+		ByTestVals.put("PercentCorrect", bytest.PercentCorrectlyAnswered);
+		ByTestVals.put("PercentInorrect", bytest.PercentIncorrectlyAnswered);
+		ByTestVals.put("_id", new ObjectId());
+		TestResultbyTest.add(ByTestVals); 
 		
 		
 		//create Test Results by  student
@@ -522,7 +538,7 @@ public class Test_grading_Random {
 			ByStudentVals.put("IncorrectlyAnswered", bystudent.IncorrectlyAnswered[j]);
 			ByStudentVals.put("RepliedTo", bystudent.RepliedTo[j]);
 			ByStudentVals.put("ScoreTotal", bystudent.ScoreTotal[j]);
-			ByStudentVals.put("ScoreMean", bystudent.ScoreMean[j]);
+//			ByStudentVals.put("ScoreMean", bystudent.ScoreMean[j]); //this is still wrong, unless i want ot show the mean of score for any 1 question
 			ByStudentVals.put("_id", new ObjectId());
 			TestResultbyStudent.add(ByStudentVals); //add Rvals into the Testresultarray listarray
 //			System.out.println("Question " + j + " numcorrect = " + CorrectlyAnswered[j]);
@@ -537,6 +553,9 @@ public class Test_grading_Random {
 //		System.out.println("Test result query = " + TRbyQuestions);
 		coll.update(new BasicDBObject("_id", new ObjectId(message)),  set);
 		
+		BasicDBObject TRbyTest = new BasicDBObject("TRbyTest", ByTestVals);
+		BasicDBObject settest = new BasicDBObject("$set", TRbyTest);
+		coll.update(new BasicDBObject("_id", new ObjectId(message)),  settest);
 		
 		BasicDBObject TRbyStudent = new BasicDBObject("TRbyStudents", TestResultbyStudent);
 		BasicDBObject set1 = new BasicDBObject("$set", TRbyStudent);

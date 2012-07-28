@@ -16,7 +16,7 @@ public class byStudent {
 	private int numQ; //number of questions
 	private int numS; //number of students
 	
-	byStudent(int numofquestions, int numstudents){ //constructor 
+	public byStudent(int numofquestions, int numstudents){ //constructor 
 		numS = numstudents;
 		numQ = numofquestions;
 		CorrectlyAnswered = new int[numstudents];

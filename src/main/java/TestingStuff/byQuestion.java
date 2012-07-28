@@ -21,7 +21,7 @@ public class byQuestion {
 	private int numQ; //number of questions
 	private int numS; //number of students
 	
-	byQuestion(int numofquestions, int numofstudents){
+	public byQuestion(int numofquestions, int numofstudents){
 		System.out.println("byquestion num of questions = " + numofquestions);
 		numQ = numofquestions;
 		numS = numofstudents;

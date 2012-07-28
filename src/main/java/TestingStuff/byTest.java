@@ -17,7 +17,9 @@ public class byTest {
 	
 	private byStudent students = null; //byStudent class instance
 	
-	byTest(int numofquestions, int numstudents, byStudent bystudent){
+
+
+	public byTest(int numofquestions, int numstudents, byStudent bystudent){
 		numS = numstudents;
 		numQ = numofquestions;
 		students = bystudent;

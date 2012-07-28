@@ -174,7 +174,7 @@ public class CreatePDFWorker {
 		System.out.println("Gridfs file id = " + gfsFile.getId());
 		String pdfid = gfsFile.getId().toString();
 		//save back into our teacherschema json object
-		ArrayList CreatedPDF = new ArrayList(); //create the array of data 
+		ArrayList<GridFSInputFile> CreatedPDF = new ArrayList<GridFSInputFile>(); //create the array of data 
 		CreatedPDF.add(gfsFile);//put gfsfile into the array
         QuestionObjects.put("CreatedPDF", CreatedPDF); //put it in our json object //this will overide the previous values
         coll.save(QuestionObjects); //save into mongodb

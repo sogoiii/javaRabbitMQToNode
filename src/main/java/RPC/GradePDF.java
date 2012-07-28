@@ -2,15 +2,12 @@ package RPC;
 
 import java.awt.Panel;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -49,13 +46,7 @@ import org.codehaus.jackson.type.TypeReference;
 import org.im4java.core.IM4JavaException;
 import org.jpedal.PdfDecoder;
 import org.jpedal.exception.PdfException;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.exceptions.COSVisitorException;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDStream;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDJpeg;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
+
 
 
 
@@ -108,7 +99,7 @@ public class GradePDF {
         // create a "TestPDF" namespace
      	gfsTestPDF = new GridFS(db, "fs");
         
-     	ActiveGrader = new GradingWorker(); //create grading instance 
+     	ActiveGrader = new GradingWorker(coll); //create grading instance 
         
        
         
@@ -153,15 +144,22 @@ public class GradePDF {
                          	Working code is below NOTE: may want to do this inside a try catch and then finally so i send something back if anything happens here
                          */
                         
+                		 //Converting the input into a java json object to pull information
+                         Map<String, Object> ReceivedMessage = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
+//                         System.out.println(userInMap.get("testid"));
+
+                         String testId = (String) ReceivedMessage.get("testid");
+                         
                          long lStartTime = new Date().getTime(); //start time
-                         System.out.println("TestID = " + message);
-                         String fileid = GetPDFFileID(message);
+                         System.out.println("TestID = " + testId);
+                         String fileid = GetPDFFileID(testId);
                          GridFSDBFile imageForOutput = gfsTestPDF.findOne(new ObjectId(fileid)); //search db for the pdf file
-                         InputStream is = imageForOutput.getInputStream();//create inputs stream from result
+                         
+                         InputStream is = new BufferedInputStream(imageForOutput.getInputStream());//create inputs stream from result
 //                         InputStream thefile = GrabPDFile(fileid); //create pdf file 
                          
                          try {
-							ActiveGrader.Grader(is);
+							ActiveGrader.Grader(is, testId);
 						} catch (InterruptedException e) {//for any exception, still call the rpc with some data so i can do something back on the server
 							// TODO Auto-generated catch block
 							//e.printStackTrace();
@@ -175,10 +173,10 @@ public class GradePDF {
 							// TODO Auto-generated catch block
 //							e.printStackTrace();
 							System.out.println("failed jpedal code, should return to user now");
-						}
+						} 
                          
                         
-                         
+                         is.close();
                          long lEndTime = new Date().getTime(); //end time
                          
                          long difference = lEndTime - lStartTime; //check different
@@ -199,7 +197,7 @@ public class GradePDF {
                          String senttonode = new String("fromjava");
                          channel.basicPublish("", responseQueue, b,senttonode.getBytes("UTF-8"));
                          channel.basicAck(deliveryTag, false);
-                         System.out.println("still inside the rpc java code. ");
+                         System.out.println("still inside the rpc java code. Exit after this line");
                      }
                  });
         } catch (IOException e) {
@@ -231,13 +229,13 @@ public class GradePDF {
 
 	
 
-	public static String GetPDFFileID(String message) throws JsonParseException, JsonMappingException, UnsupportedEncodingException, IOException{
+	public static String GetPDFFileID(String idString) throws JsonParseException, JsonMappingException, UnsupportedEncodingException, IOException{ //input is the test id
 		
-		 //Converting the input into a java json object to pull information
-       Map<String, Object> ReceivedMessage = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
-//       System.out.println(userInMap.get("testid"));
-
-       String idString = (String) ReceivedMessage.get("testid");
+//		 //Converting the input into a java json object to pull information
+//       Map<String, Object> ReceivedMessage = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
+////       System.out.println(userInMap.get("testid"));
+//
+//       String idString = (String) ReceivedMessage.get("testid");
        System.out.println("test schema ID = " + idString );
        BasicDBObject keys = new BasicDBObject();
        keys.put("ClassName",1);
@@ -259,7 +257,7 @@ public class GradePDF {
          
        }
        catch(IllegalArgumentException e) {	 
-      	 System.out.println("Failed to find objectID = '" + message + "'");
+      	 System.out.println("Failed to find objectID = '" + idString + "'");
        }
 		
 		return Fileid;

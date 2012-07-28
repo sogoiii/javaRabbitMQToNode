@@ -190,12 +190,20 @@ public class Test_grading_Random {
 		
 //		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded.pdf"); //to large, need to do some scaling
 //		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Test_Inputs.pdf"); //working 
-//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Grade_Random.pdf");
+		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Grade_Random.pdf");
 //		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_TestMongo_Graded_Vsmaller.pdf");
 //	    File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore_testnum2_Grade_LARGE.pdf");
 //	    File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore_testnum2_Grade_LARGE_MISTAKES_doubles.pdf");
-	    File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore_testnum2_Grade_LARGE_MISTAKES_noreply.pdf");
+//	    File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore_testnum2_Grade_LARGE_MISTAKES_noreply.pdf");
 	    
+		
+		//just testing. I get a bufferedImageLuminanceSource.java.39 -> grabbing image file dimentions. 
+//		PdfDecoder decode_pdf = new PdfDecoder(true);
+//		decode_pdf.openPdfFile("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Grade_Random.pdf");
+//		int numpages = decode_pdf.getPageCount();
+		
+		
+		
 	    PDDocument doc = PDDocument.load(PDF_file);//used to get page numbers
 	    int numpages = doc.getNumberOfPages(); //get page numbers for for loop
 	    int[] CorrectlyAnswered = new int[Questions.size()]; //number of correct answers 
@@ -318,7 +326,7 @@ public class Test_grading_Random {
 	                                				32,  (int)(ipl_subBubble_gray.height()/(7)));
 							
 							Integer[][] FilledBubbles = new Integer[4][4]; //arry holds the #of pixels seen and the y dimention of subimage
-							Vector<CvPoint> centers = new Vector<CvPoint>(4);//the 4 can be seq.total()
+//							Vector<CvPoint> centers = new Vector<CvPoint>(4);//the 4 can be seq.total()
 							for(int j=0; j<seq.total(); j++){ //draw a circle around each circle found
 						        CvPoint3D32f xyr = new CvPoint3D32f(cvGetSeqElem(seq, j));
 						        CvPoint center = new CvPoint(Math.round(xyr.x()), Math.round(xyr.y()));
@@ -357,7 +365,7 @@ public class Test_grading_Random {
 					        int maxIndex = selectResult[0];
 					        int isfound = 1;
 					        int ismulti = 0;
-					        if(selectResult[1] > 1 || selectResult[2] == 1){ //selectResult[1] = number of bubbles selected by student
+					        if(selectResult[1] > 1 || selectResult[2] == 1){ //selectResult[1] = number of bubbles , selectResult[2] = no selections made 
 					        	System.out.println("more than one bubble was selected");
 //					        	Aindex++; //index for looping through answer array //need to be incremented to keep data correct
 //					        	index++; //(0-number of questions) //need to be incremented to keep data correct
@@ -437,12 +445,7 @@ public class Test_grading_Random {
 					        
 					        
 					        
-					        
-					        
-					        
-					        
-					        
-					        
+					    
 					        
 					        //draw the red circles
 					        CvPoint slectedcenter = new CvPoint(FilledBubbles[maxIndex][1].intValue(),FilledBubbles[maxIndex][2].intValue());
@@ -787,13 +790,13 @@ public class Test_grading_Random {
 //		  convert.setSearchPath("/usr/bin/convert");
 //		  convert.setSearchPath("/Volumes/Main Drive/Users/angellopozo/ImageMagick-6.7.8/bin/convert");
 //		  convert.setSearchPath("Users/angellopozo/ImageMagick-6.7.8/bin/convert");
-		  convert.setSearchPath("/usr/local/bin");
+//		  convert.setSearchPath("/usr/local/bin");
 		  Stream2BufferedImage s2b = new Stream2BufferedImage();
 		  convert.setOutputConsumer(s2b);
 		  convert.run(op);
 //		  convert.createScript("myscript.sh",op);//debug`` line
 		  BufferedImage aPDF_img = s2b.getImage(); //PDF_img is the pdf_image
-		  ImageIO.write(aPDF_img,"PNG",new File("Page_"+ (i+1) +"of_PDF.png"));//write whole pdf page to png
+		  ImageIO.write(aPDF_img,"jpeg",new File("Page_"+ (i+1) +"of_PDF.jpg"));//write whole pdf page to png
 		return aPDF_img;
 	}//end of ConvertPagetoImage
 	

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -70,10 +71,20 @@ public class CreatePDFWorker {
         JsonNode Questions = rootNode.get("Questions");
         int numofstudents = rootNode.get("NumberOfStudents").getIntValue(); //grab the number of students 
 	
-		//These loops will create a Question Object for every question in the QuestionObjects that was grabbed using the objectID fo the test we wanted
-	       Question[] QA = new Question[(Questions.size())];	
+	       //this list is the a,b,c,d order
+			List<Integer> SelectionRandomOrderlist = new ArrayList<Integer>();
+			SelectionRandomOrderlist.add(0);//a
+			SelectionRandomOrderlist.add(1);//b
+			SelectionRandomOrderlist.add(2);//c
+			SelectionRandomOrderlist.add(3);//d
+			Collections.shuffle(SelectionRandomOrderlist);//this randomizes the above list.
 	        
+	       //VERSION 1
+		//These loops will create a Question Object for every question in the QuestionObjects that was grabbed using the objectID for the test we wanted
+	       Question[] QA = new Question[(Questions.size())];	
+	       //Formatting the question array
 	        for(int i = 0; i < Questions.size(); i++ ){ //i is the question number
+	        	
 	        	Question Q = new Question();
 	        	
 	        	String Quest = new String(Questions.get(i).get("Questionhtml").getTextValue()); //grab the question 
@@ -81,33 +92,55 @@ public class CreatePDFWorker {
 	    		String CA = new String(Questions.get(i).get("CorrectAnswertext").getTextValue()); //grab correct answer
 	    		Q.setAnswer(CA);
 	        	
-	    		System.out.println("Question = " + Q.Question);
+//	    		System.out.println("Question = " + Q.Question);
 	    		System.out.println("Answer = " + Q.Answer);
-	        	int WA_num = Questions.get(i).get("WrongAnswers").size();
-	        	String[] WAA = new String[WA_num];
-	        	for(int j = 0; j < WA_num; j++){    		
-	        		WAA[j] = new String(Questions.get(i).get("WrongAnswers").get(j).get("WrongAnswertext").getTextValue()); //grab wrong answer
-	        		System.out.println("Wrong Answer = " + WAA[j]);
+	    		
+	    		Collections.shuffle(SelectionRandomOrderlist);//this randomizes the selection list order
+	        	int WA_num = Questions.get(i).get("WrongAnswers").size();//number of wrong answers
+	        	int PA_num = 4;
+	        	String[] WAA2 = new String[PA_num]; 
+	        	String[] WAA = new String[PA_num]; 
+	        	WAA2[0] = CA;
+	        	for(int j = 0; j < WA_num; j++){ 
+//	        		System.out.println("j = " + j);
+	        		WAA2[j+1] = new String(Questions.get(i).get("WrongAnswers").get(j).get("WrongAnswertext").getTextValue()); //grab wrong answer
+//	        		System.out.println("Wrong Answer = " + WAA[j]);
 	        	}//possible answers for loop
-	        	Q.setPossibleAnswer(WAA); //pt wrong answer array in Possibel answer array of question i
+	        	
+	        	
+	    		for(int j = 0; j < SelectionRandomOrderlist.size();j++){
+//	    			System.out.println("Order " + i + " = " + WAA[SelectionRandomOrderlist.get(i)] );
+	    			WAA[j]= WAA2[SelectionRandomOrderlist.get(j)];
+	    			if(WAA[j].equals(CA)){
+	    				System.out.println("Answer location = " + j);
+	    				Q.Answerlocation = j;
+	    			}//end of if
+	    		}//end of for loop
+	        	
+	        	Q.setPossibleAnswer(WAA); //pt wrong answer array in Possible answer array of question i
 	        	QA[i] = Q;
 	        }//end of num questions for loop
+	        
+	        
+	        
 	        
 		
 
 		int numofquestions = QA.length;
-		System.out.println("num of q = " + numofquestions);
+//		System.out.println("num of q = " + numofquestions);
 		
 		 BufferedImage bubblgeImage = ImageIO.read(new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/LargeBubble2.jpg")); //read manually, because it is the bubble object
 		 PDDocument doc = new PDDocument(); //create pdf document
 		 PDFont Questionfont = PDType1Font.HELVETICA; //set font of pdf
 
 		 
-		
-		 int studentindex = 0;
-		 int studetpageindex = 0; //controls the student page recreation
 		 
-		 for(int x = 0; x < numofstudents; x++){//x is the student number
+		 ArrayList<BasicDBObject> AnswerLocs = new ArrayList<BasicDBObject>(); //Array of the answer locations
+		 
+		 int studentindex = 0;//is used
+		 int studetpageindex = 0; //controls the student page recreation
+
+		 for(int x = 0; x < numofstudents; x++){
 			 int indivpage = 0;
 		     int remaining = numofquestions; //number of questions written = remaining
 		     int pageindex = 0 + studetpageindex; //this is the number of pages plus the student page index so the test can be recreated for each student
@@ -115,32 +148,51 @@ public class CreatePDFWorker {
 		     while(remaining > 0){
 		      
 			     doc.addPage( new PDPage() ); //add blank page to doc
-			     System.out.println("pageindex  = " + pageindex);
+//			     System.out.println("pageindex  = " + pageindex);
 			     PDPage currentpage = (PDPage)doc.getDocumentCatalog().getAllPages().get(pageindex);//get current page
 			     WriteTitleToPDF( doc, currentpage, indivpage); //write test title on top of page
 			     
-			     System.out.println("Created page " + pageindex);
-			     System.out.println("remaining =  " + remaining);
+//			     System.out.println("Created page " + pageindex);
+//			     System.out.println("remaining =  " + remaining);
 			     int i = 0;
 			    //CREATE Current PDF Page Loop
 					while(i < 7 || remaining < 0){ //remaining is here incase the number of quetions is less than 7
 						int Qnum = i+Questionshift + 1;
-						String qrCodeText = "{\"Question\":\""+Integer.toString(Qnum) + "\",\"stud\":\"" + Integer.toString(x)+ "\"}" ; //QR_TEXT
+//						String qrCodeText = "{\"Question\":\""+Integer.toString(Qnum) + "\", \"stud\":\"" + Integer.toString(x)+ "\"}" ; //QR_TEXT
+						String qrCodeText = Integer.toString(x) + "_" +  Integer.toString(Qnum);
 				        BufferedImage aQRImage = null; //initialize new bufferedimage, this will be the qrcode
 				        aQRImage = createQRImage(qrCodeText, sizeofQRCode, "png"); //create buffered image of QRCode
 	
 				        PDXObjectImage PDQRImage = new PDJpeg(doc, aQRImage); //make image object for PDFbox
-				        BufferedImage testtest = PDQRImage.getRGBImage();
+				        
+				        
 				        PDXObjectImage bubble = new PDJpeg(doc, bubblgeImage); //make image object for PDFbox
 				        PDPageContentStream contentStream = new PDPageContentStream(doc, currentpage,true,false); //create write stream
 				        contentStream.drawImage( PDQRImage,0, (650-105*i) ); //write Qrcode onto pdf
 				        contentStream.setFont( Questionfont, 10 );//set font
 				        WriteQuestionToPDF(contentStream, i,(i+Questionshift), QA,bubble);//write the Question, answers, and bubbles
 				        
-				        System.out.println("DONE writing question num = "+ (i + Questionshift));
+
+			        
+				        
+				        //v3 (array with single object not object of object)
+//				        System.out.println("Accessing: answer locations = " + QA[Qnum].Answerlocation);
+//				        System.out.println("Current Question number = " + Qnum);
+				        BasicDBObject Answer = new BasicDBObject("Answer", QA[Qnum - 1].Answerlocation); // in need to assert that this is equal and less than 3 but equal and greatr to 0
+				        Answer.put("found", 0);
+				        Answer.put("IDS",qrCodeText);
+				        Answer.put("multiselect", 0);
+				        Answer.put("_id", new ObjectId());
+//				        Answer.put("selected", null);
+//				        Answer.put("correct", null);
+				        AnswerLocs.add(Answer); //v3
+
+				        
+				        
+//				        System.out.println("DONE writing question num = "+ (i + Questionshift));
 				        contentStream.close();//close stream 
 				        remaining--;
-				        System.out.println("remainign = " + remaining);
+//				        System.out.println("remainign = " + remaining);
 				        i++;
 				        if(remaining == 0){
 				        	break;
@@ -148,14 +200,32 @@ public class CreatePDFWorker {
 					}//end of second while loop     
 				pageindex++; //increment next page
 				Questionshift = Questionshift + 7;
-				System.out.println("questionshift = " + Questionshift); 
+//				System.out.println("questionshift = " + Questionshift); 
 				indivpage++;//this controls the page number shown on bottom 
 		     }//end of fir while loop for pages
 		     studetpageindex = studetpageindex + pageindex;
 		     studentindex++; //add to student index
 		     
 		 }//end of numofstudents for loop
-		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_TesT_REAL.pdf"); //save to my file system so i can see it
+		doc.save( "/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Random_withScore.pdf"); //save to my file system so i can see it
+		//v1
+//		QuestionObjects.put("Answers", QI_SNTOT); //v1 
+		
+		//v2
+//		BasicDBObject ANSWERS = new BasicDBObject("Answers", AnswerLocs);
+//		QuestionObjects.put("Answers", AnswerLocs);
+		
+		//v3
+//		BasicDBObject ANSWERS = new BasicDBObject("Answers", AnswerLocs);
+//		System.out.println("answers object array = " + ANSWERS);
+		QuestionObjects.put("TestAnswerSheet", AnswerLocs);
+		
+//		System.out.println("QI_SN = " ANSWERS.toString() );	
+//		for(BasicDBObject dbo : AnswerLocs){
+////			System.out.println("QI_SN = " AnswerLocs.get(i).toString());
+//		}
+		
+		
 		
 		
 		
@@ -169,22 +239,24 @@ public class CreatePDFWorker {
 		GridFS gfsPhoto = new GridFS(db, "fs");
 		GridFSInputFile gfsFile = gfsPhoto.createFile(mar); //mar is the pdf in byte array form
 		gfsFile.setContentType("binary/octet-stream");
-		gfsFile.setFilename("CreatedPDF_Mongo_Tes_REAL.pdf");
+		gfsFile.setFilename("CreatedPDF_Mongo_Random_withScore.pdf");
 		gfsFile.save();
-		System.out.println("Gridfs file id = " + gfsFile.getId());
 		String pdfid = gfsFile.getId().toString();
+		
 		//save back into our teacherschema json object
 		ArrayList<GridFSInputFile> CreatedPDF = new ArrayList<GridFSInputFile>(); //create the array of data 
 		CreatedPDF.add(gfsFile);//put gfsfile into the array
         QuestionObjects.put("CreatedPDF", CreatedPDF); //put it in our json object //this will overide the previous values
         coll.save(QuestionObjects); //save into mongodb
+
 		
-		return pdfid;
-	}//end of Create
+		
+        return pdfid;
+	} //end of main
+
 	
 	
-	
-	
+
 	
 	private static void WriteTitleToPDF(PDDocument doc, PDPage page, int pageindex) throws IOException{
 		
@@ -242,7 +314,7 @@ public class CreatePDFWorker {
 		 		mycontentStream.beginText();
 		 		mycontentStream.moveTextPositionByAmount(105 , ((735)-(105*i-linebuff))); //position of the question text 
 		 		if(numindex == 0){
-		 			mycontentStream.drawString(Qnum + ". ");
+		 			mycontentStream.drawString(Qnum + ". "); //the question number
 		 		}
 		 		mycontentStream.drawString(textline);
 		 		mycontentStream.endText();
@@ -258,6 +330,8 @@ public class CreatePDFWorker {
 	    	 }
 	     }//end of linestring for
 	     
+	     
+	     //now write the possilbe answers AND correct answer
 		int shiftint = 0;
 		for(String s: QA[Qi].PossibleAnswers){ 
 			mycontentStream.drawImage(bubble, 100, (700-18*shiftint - 105*i)); //position of the bubble
@@ -269,12 +343,13 @@ public class CreatePDFWorker {
 		}//end of possible answers for loop	
 		
 		
-		//write the correct answer
-		mycontentStream.drawImage(bubble, 100, (700-18*shiftint - 105*i)); //position of the bubble
-		mycontentStream.beginText();
-		mycontentStream.moveTextPositionByAmount(125 , (705-18*shiftint - 105*i) );//position of the possible answer text        //var*shiftint : var i the distance between questions
-		mycontentStream.drawString(ReturnQuestionLetter(shiftint) + " " + QA[Qi].Answer );
-		mycontentStream.endText();
+//		//write the correct answer
+//		mycontentStream.drawImage(bubble, 100, (700-18*shiftint - 105*i)); //position of the bubble
+//		mycontentStream.beginText();
+//		mycontentStream.moveTextPositionByAmount(125 , (705-18*shiftint - 105*i) );//position of the possible answer text        //var*shiftint : var i the distance between questions
+//		mycontentStream.drawString(ReturnQuestionLetter(shiftint) + " " + QA[Qi].Answer );
+//		mycontentStream.endText();
+		
 		
 		
 	}//end of writequtesiotntopdf
@@ -285,14 +360,14 @@ public class CreatePDFWorker {
 	private static List<String> ParseLine(String Text){		
 		//check for how long a line 
 		String[] olines = new String[3];
-		List<String> output = new ArrayList();
+		List<String> output = new ArrayList<String>();
 //		System.out.println("size of question " + Text.length());
 		if(Text.length() > 74){//74 is the maximum character length to the wall for a line
 			String[] words = Text.split(" ");
 			String ostring = "";
 			int index = 0;
 			int iteration = 0;
-			boolean leave = false;
+//			boolean leave = false;
 			//System.out.println(words.length);
 			for(String word: words){
 //					System.out.println("comparison = " + (ostring.length() + word.length()));
@@ -346,7 +421,7 @@ public class CreatePDFWorker {
 	
 	private static BufferedImage createQRImage(String qrCodeText, int size, String fileType) throws WriterException, IOException {
         // Create the ByteMatrix for the QR-Code that encodes the given String
-        Hashtable hintMap = new Hashtable();
+        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<EncodeHintType, ErrorCorrectionLevel>();
         hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix byteMatrix = qrCodeWriter.encode(qrCodeText,
@@ -373,6 +448,19 @@ public class CreatePDFWorker {
         return image;
     }//end of CreateQRImage
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

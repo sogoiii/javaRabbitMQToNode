@@ -170,7 +170,7 @@ public class CreatePDF {
 							e.printStackTrace();
 						} //create pdf with the message = testid
                          
-                         
+                         waiting(2000); //test wait for debugging purposes
                         
                          long lEndTime = new Date().getTime(); //end time
                          long difference = lEndTime - lStartTime; //check different
@@ -184,7 +184,7 @@ public class CreatePDF {
                              .correlationId(correlationId)
                              .build();
 
-//                         waiting(3000); //test wait for debugging purposes
+                         waiting(2000); //test wait for debugging purposes
                          
                          
                          calledtimes++;

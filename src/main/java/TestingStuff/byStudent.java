@@ -13,12 +13,12 @@ public class byStudent {
 	public double[] ScoreTotal; //the end score for any student
 	public double[] ScoreMean;//average score submitted by student
 	
-	private int numQ; //number of questions
+//	private int numQ; //number of questions
 	private int numS; //number of students
 	
 	public byStudent(int numofquestions, int numstudents){ //constructor 
 		numS = numstudents;
-		numQ = numofquestions;
+//		numQ = numofquestions;
 		CorrectlyAnswered = new int[numstudents];
 		IncorrectlyAnswered = new int[numstudents];
 		RepliedTo = new int[numstudents];
@@ -45,7 +45,7 @@ public class byStudent {
 	public void ComputeTotalScores(double[][] scoresbystudent){ //want to Compute find out the total scores from the input double array
 		for(int i = 0; i < numS;i++){
 			ScoreTotal[i] = StatUtils.sum(scoresbystudent[i]);
-			System.out.println("Total score for student " + i + " = " + ScoreTotal[i]);
+//			System.out.println("Total score for student " + i + " = " + ScoreTotal[i]);
 		}//end of for loop
 	}//end of inserttotalscores
 	
@@ -54,7 +54,7 @@ public class byStudent {
 	public void ComputeMeanTotalScore(double[][] scorebystudent){
 		for(int i = 0; i < numS;i++){
 			ScoreMean[i] = StatUtils.mean(scorebystudent[i]);
-			System.out.println("Score mean for student =" +  ScoreMean[i]);
+//			System.out.println("Score mean for student =" +  ScoreMean[i]);
 		}//end of for loop
 	}//end of ComputeMeanScore
 	

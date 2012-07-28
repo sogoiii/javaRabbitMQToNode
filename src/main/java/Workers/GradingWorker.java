@@ -90,24 +90,16 @@ public class GradingWorker {
 	public void Grader(InputStream is, String message) throws IOException, InterruptedException, IM4JavaException, PdfException{ //is - is the inputstream of the pdf file
 		System.out.println("inside grader");
 		
-		
-//		File PDF_file = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/Resources/CreatedPDF_Mongo_Grade_Random.pdf");
-//		ByteArrayOutputStream outstream = new ByteArrayOutputStream(); 
-//		byte[] mar = outstream.toByteArray();//put f data in to byte array mar //mar should equal the pdf in byte[] form
-//		byte[] f = IOUtils.toByteArray(is);
-//		
-		
-//		BufferedImage newimage = ImageIO.read(is);
+
 		
 		 //workign with jpedal, will read from inputstream
 	      PdfDecoder decode_pdf = new PdfDecoder(true);
 	      try{
-//	      decode_pdf.openPdfArray(f);
 	      decode_pdf.openPdfFileFromInputStream(is,true); //file
-	      BufferedImage img = decode_pdf.getPageAsImage(1);
+//	      BufferedImage img = decode_pdf.getPageAsImage(1);
 //	      decode_pdf.closePdfFile();
-	      File fileToSave = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/decode_pdf_firstPage.jpg");
-		  ImageIO.write(img, "jpg", fileToSave);
+//	      File fileToSave = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/decode_pdf_firstPage.jpg");
+//		  ImageIO.write(img, "jpg", fileToSave);
 //		  JFrame frame = new JFrame("jpedal buffered image");
 //			Panel panel = new Panel();
 //			frame.getContentPane().add(new JLabel(new ImageIcon(img)));
@@ -126,22 +118,22 @@ public class GradingWorker {
 	      
 		 
 		int numpages = decode_pdf.getPageCount(); //get page numbers for for loop
-		System.out.println("number of pages = " + numpages); //check to make sure the number of pages is reasonable, dont want this to be too large call Db and return
+//		System.out.println("number of pages = " + numpages); //check to make sure the number of pages is reasonable, dont want this to be too large call Db and return
 	    
 		
 		
-		System.out.println("message = " + message);
+//		System.out.println("message = " + message);
 		ObjectMapper mapper = new ObjectMapper(); 
 		DBObject TestObject = coll.findOne(new BasicDBObject("_id", new ObjectId(message))); //the actual mongo query
-        System.out.println("Test Object = " + TestObject);
+//        System.out.println("Test Object = " + TestObject);
         JsonNode rootNode = mapper.readValue(TestObject.toString().getBytes("UTF-8"), JsonNode.class);
         JsonNode TestAnswerSheet = rootNode.get("TestAnswerSheet"); //TestAnswerSheet
         JsonNode Questions = rootNode.get("Questions");
-        System.out.println("size of Questions = " + Questions.size());
+//        System.out.println("size of Questions = " + Questions.size());
         int numofquestions = Questions.size();
-        System.out.println("size of answers = " + TestAnswerSheet.size());
+//        System.out.println("size of answers = " + TestAnswerSheet.size());
         int numofstudents = rootNode.get("NumberOfStudents").getIntValue(); //grab the number of students 
-	    System.out.println("Numer of students = " + numofstudents);
+//	    System.out.println("Numer of students = " + numofstudents);
 		
 		
 		
@@ -151,7 +143,8 @@ public class GradingWorker {
 	    int[] IncorrectlyAnswered = new int[Questions.size()]; //number of incorrectly answered responses
 	    byStudent bystudent = new byStudent(numofquestions, numofstudents); //create grading instance //Initialize with number of students 
 	    byQuestion byquestion = new byQuestion(numofquestions, numofstudents);
-	    System.out.println("result size = " + CorrectlyAnswered.length);
+//	    System.out.println("result size = " + CorrectlyAnswered.length);
+	    
 	    //need to fill the score array in byquestions
 		for(int i = 0; i < Questions.size();i++){
 //			System.out.println("Score for this question = " + Questions.get(i).get("Score").getDoubleValue()); 
@@ -159,17 +152,12 @@ public class GradingWorker {
 		}//end of filling score array in byquestion
 	    
 		 
-//		int numpages = decode_pdf.getPageCount(); //get page numbers for for loop
-		System.out.println("number of pages = " + numpages); //check to make sure the number of pages is reasonable, dont want this to be too large call Db and return
-		System.out.println("____________________________________");
-//		   JFrame frame = new JFrame(); //window popup 
-//		ArrayList Results = new ArrayList(); //Array of the answer locations
-//		ArrayList WA = new ArrayList(); //array of wrong answers that were selected by the students
-//		ArrayList SR = new ArrayList(); //holding accumulated data below. selected answers array
+
+//		System.out.println("number of pages = " + numpages); //check to make sure the number of pages is reasonable, dont want this to be too large call Db and return
+//		System.out.println("____________________________________");
 		int numoffails = 0;
 		int index = 0;//debug line to save images
 		int Aindex = 0;
-//		int Qindex = 0;
 		int[][] Selections = new int[2][Questions.size()]; // student , question
 		int[][] SelectionTotal = new int[Questions.size()][4]; // question, answer selected		
 		for(int i = 0; i < numpages;i++){ //for every page
@@ -179,10 +167,9 @@ public class GradingWorker {
 //			 BufferedImage PDF_img = ConvertPageToImage(PDF_file,i);//debugging
 	    	 BufferedImage PDF_img = decode_pdf.getPageAsImage(i+1); //production?
 //			  
-			 System.out.println("(width,height) = " + PDF_img.getWidth() + " " + PDF_img.getHeight());
-//			 PDF_img = resizeImage(PDF_img);
+//			 System.out.println("(width,height) = " + PDF_img.getWidth() + " " + PDF_img.getHeight());
 			 PDF_img = scaleImage(PDF_img, 638, 830);
-			 System.out.println("(width,height) = " + PDF_img.getWidth() + " " + PDF_img.getHeight());
+//			 System.out.println("(width,height) = " + PDF_img.getWidth() + " " + PDF_img.getHeight());
 			 
 			 
 			//START creating luminance source
@@ -191,7 +178,7 @@ public class GradingWorker {
 				 
 				 Reader reader = new QRCodeReader(); //create qr reader
 				 GenericMultipleBarcodeReader multireader = new GenericMultipleBarcodeReader(reader); 
-				 System.out.println(" I BETTER DAMN WELL SEE THIS!!!");
+				 
 				 Hashtable<DecodeHintType, Object> hints = new Hashtable<DecodeHintType, Object>();
 				 hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
 				 
@@ -218,13 +205,13 @@ public class GradingWorker {
 				//draw boxes around the found qrcodes 
 				 index = 0;//debug line to save images
 				 for ( Result result: results ) {
-					    System.out.println("barcode result: " + result.getText());
-					    double x1 = result.getResultPoints()[0].getX(); //top left
+//					    System.out.println("barcode result: " + result.getText());
+//					    double x1 = result.getResultPoints()[0].getX(); //top left
 					    double y1 = result.getResultPoints()[0].getY(); // top left
 					    double x2 = result.getResultPoints()[1].getX(); //top right
 					    double y2 = result.getResultPoints()[1].getY(); //top right
 					    double x3 = result.getResultPoints()[2].getX();// bottom left
-					    double y3 = result.getResultPoints()[2].getY(); //bottom left
+//					    double y3 = result.getResultPoints()[2].getY(); //bottom left
 					    // double x4 = result.getResultPoints()[3].getX(); //bottom right (bottom right square location..some qr have it)
 					    //  double y4 = result.getResultPoints()[3].getY(); //bottom right (bottom right square location..some qr have it)
 					    Rectangle2D rectbox = new Rectangle2D.Double(x2, y2, (x3-x2), (y1-y2));
@@ -244,7 +231,6 @@ public class GradingWorker {
 					    IplImage ipl_subBubble_large = cvCreateImage(cvSize(ipl_subBubble.width()*4,ipl_subBubble.height()*4),ipl_subBubble.depth(),ipl_subBubble.nChannels());
 					    cvResize(ipl_subBubble, ipl_subBubble_large, CV_INTER_CUBIC);//enlarge image 
 					    IplImage ipl_subBubble_gray = cvCreateImage( cvSize( ipl_subBubble_large.width(), ipl_subBubble_large.height() ), IPL_DEPTH_8U, 1 ); //create black and white version of page
-					   // IplImage ipl_subBubble_gray = ipl_subBubble_large.clone();
 					    
 					    
 					    
@@ -313,7 +299,7 @@ public class GradingWorker {
 				        int isfound = 1;
 				        int ismulti = 0;
 				        if(selectResult[1] > 1 || selectResult[2] == 1){ //selectResult[1] = number of bubbles , selectResult[2] = no selections made 
-				        	System.out.println("more than one bubble was selected");
+//				        	System.out.println("more than one bubble was selected");
 //				        	Aindex++; //index for looping through answer array //need to be incremented to keep data correct
 //				        	index++; //(0-number of questions) //need to be incremented to keep data correct
 //				        	numoffails++; //student selected too many inputs, hence trying to cheat and 
@@ -329,8 +315,8 @@ public class GradingWorker {
 					   	String QID = new String(TestAnswerSheet.get(Aindex).get("IDS").getTextValue()); //grab the question  ID 
 					   	int CorrectAnswerloc = TestAnswerSheet.get(Aindex).get("Answer").getIntValue(); //correct answer location
 					   	
-					   	System.out.println("Correc answer location = " + CorrectAnswerloc);
-					   	System.out.println("IDS = " + QID  + " QI = " + Aindex);
+//					   	System.out.println("Correc answer location = " + CorrectAnswerloc);
+//					   	System.out.println("IDS = " + QID  + " QI = " + Aindex);
 					   	
 					   	int iscorrect = 0;
 					   	if(ismulti == 1){//if multiple selected
@@ -348,7 +334,7 @@ public class GradingWorker {
 //				        newvals.put(Answersnum + ".correct", iscorrect);
 //				        newvals.put(Answersnum + ".selected", maxIndex);
 				        BasicDBObject posop = new BasicDBObject("$set", newvals);
-				        System.out.println("inc query = " + posop.toString());
+//				        System.out.println("inc query = " + posop.toString());
 				        coll.update(new BasicDBObject("_id", new ObjectId(message)), posop);
 					   	
 
@@ -358,23 +344,23 @@ public class GradingWorker {
 				        
 			        	char stud = QID.charAt(0); //this is the student //QID starts at 1, not at 0 hence the negative
 			        	char Q = QID.charAt(2); // this is the question
-				        System.out.println("Student num = " + stud);
-				        System.out.println("Q num = " + Character.getNumericValue(Q-1));//QID starts at 1, not at 0 hence the negative
+//				        System.out.println("Student num = " + stud);
+//				        System.out.println("Q num = " + Character.getNumericValue(Q-1));//QID starts at 1, not at 0 hence the negative
 				        
 				        //Aggregate information to create Test Results array
 				        int Qint = Aindex % numofquestions; //Qint = the question number of the test -1(includes 0 hence the -1) //should be equivalent to char Q
 //				        System.out.println("Score for this question = " + Questions.get(Qint).get("Score").getDoubleValue()); 
 				        if(iscorrect == 1){
-				        	System.out.println("mod result = " + Qint);
-				        	System.out.println("Question = " + Qint + " is correct = " + iscorrect );
+//				        	System.out.println("mod result = " + Qint);
+//				        	System.out.println("Question = " + Qint + " is correct = " + iscorrect );
 				        	CorrectlyAnswered[Qint] = CorrectlyAnswered[Qint] + 1; // byquestion.IncrementCorrectlyAnswered(Qint);
 				        	byquestion.IncrementCorrectlyAnswered(Qint);
 				        	bystudent.IncrementCorrectlyAnswered(Character.getNumericValue(stud));
 				        	byquestion.InsertScore(Character.getNumericValue(stud), Qint);
 				        }
 				        else if(iscorrect == 0){ //wrong answer was selected // Selections // or multiple selections
-				        	System.out.println("mod result = " + Qint);
-				        	System.out.println("Question = " + Qint + " is Incorrect = " + iscorrect );
+//				        	System.out.println("mod result = " + Qint);
+//				        	System.out.println("Question = " + Qint + " is Incorrect = " + iscorrect );
 				            IncorrectlyAnswered[Qint] = IncorrectlyAnswered[Qint] + 1; // byquestion.IncrementCorrectlyAnswered(Qint);
 				            byquestion.IncrementIncorrectlyAnswered(Qint);
 				            bystudent.IncrementIncorrectlyAnswered(Character.getNumericValue(stud));
@@ -415,7 +401,7 @@ public class GradingWorker {
 						
 						
 					    
-				System.out.println("____________________________________");
+//				System.out.println("____________________________________");
 				}//end of for results loop
 			//end drawing boxes around each QR CODE
 				
@@ -440,33 +426,32 @@ public class GradingWorker {
 	 
 	    
 	    //putput how well teh students performed on test
-	 for(int i = 0; i < numofstudents;i++){   
-		 System.out.println("student" + i +"answered Correctly: " + bystudent.CorrectlyAnswered[i]  + " Questions");
-		 System.out.println("student" + i +"answered Incorrectly: " + bystudent.IncorrectlyAnswered[i]  + " Questions");
-		 System.out.println("student" + i +"answered: " + bystudent.RepliedTo[i]  + " Questions");
-	 }
+//	 for(int i = 0; i < numofstudents;i++){   
+//		 System.out.println("student" + i +"answered Correctly: " + bystudent.CorrectlyAnswered[i]  + " Questions");
+//		 System.out.println("student" + i +"answered Incorrectly: " + bystudent.IncorrectlyAnswered[i]  + " Questions");
+//		 System.out.println("student" + i +"answered: " + bystudent.RepliedTo[i]  + " Questions");
+//	 }
 	 
 	 
 	 
 	//results by student and question
-	for(int i = 0; i < Selections.length; i++){
-		for(int j = 0; j < Selections[0].length;j++){
-			System.out.println("Student (" + i + "," + j +") selected = "+ Selections[i][j]);
-		}
-	}
+//	for(int i = 0; i < Selections.length; i++){
+//		for(int j = 0; j < Selections[0].length;j++){
+//			System.out.println("Student (" + i + "," + j +") selected = "+ Selections[i][j]);
+//		}
+//	}
 	
 	//results by question and reply
-	for(int i =0 ; i < SelectionTotal.length; i++){
-		System.out.println("Selection below = " + byquestion.SelectedWrongAnswer_0[i] + " " 
-				 + byquestion.SelectedWrongAnswer_1[i] + " "
-				 + byquestion.SelectedWrongAnswer_2[i] + " "
-				 + byquestion.SelectedCorrectAnswer[i] + " ");		
-		System.out.println("correctly answered = " + byquestion.CorrectlyAnswered[i] + " " + CorrectlyAnswered[i]);
-		for(int j = 0; j < SelectionTotal[0].length;j++){
-			System.out.println("Quesetion (" + i + "," + j +") selected = "+ SelectionTotal[i][j]);
-		}
-
-	}//end of selctiontotal for loop
+//	for(int i =0 ; i < SelectionTotal.length; i++){
+//		System.out.println("Selection below = " + byquestion.SelectedWrongAnswer_0[i] + " " 
+//				 + byquestion.SelectedWrongAnswer_1[i] + " "
+//				 + byquestion.SelectedWrongAnswer_2[i] + " "
+//				 + byquestion.SelectedCorrectAnswer[i] + " ");		
+//		System.out.println("correctly answered = " + byquestion.CorrectlyAnswered[i] + " " + CorrectlyAnswered[i]);
+//		for(int j = 0; j < SelectionTotal[0].length;j++){
+//			System.out.println("Quesetion (" + i + "," + j +") selected = "+ SelectionTotal[i][j]);
+//		}
+//	}//end of selctiontotal for loop
 	    
 	byquestion.ComputePercentCorrectlyAnswered();
 	byquestion.ComputePercentIncorrectlyAnswered();
@@ -559,7 +544,7 @@ public class GradingWorker {
 	
 	
 	
-	System.out.println("Failed to grade " + numoffails + " questions");
+//	System.out.println("Failed to grade " + numoffails + " questions");
 //	doc.close();
 	decode_pdf.closePdfFile();//
 	
@@ -604,16 +589,16 @@ public class GradingWorker {
 	    return newImage;
 	}
 	
-	
-	 private static BufferedImage resizeImage(BufferedImage originalImage){
-		 int IMG_WIDTH = 640;
-		 int IMG_HEIGHT = 830;
-		 BufferedImage resizedImage = new BufferedImage(IMG_WIDTH, IMG_HEIGHT, BufferedImage.TYPE_INT_RGB);
-			Graphics2D g = resizedImage.createGraphics();
-			g.drawImage(originalImage, 0, 0, 7, IMG_HEIGHT, null);
-			g.dispose();
-			return resizedImage;
-	 }
+//	
+//	 private static BufferedImage resizeImage(BufferedImage originalImage){
+//		 int IMG_WIDTH = 640;
+//		 int IMG_HEIGHT = 830;
+//		 BufferedImage resizedImage = new BufferedImage(IMG_WIDTH, IMG_HEIGHT, BufferedImage.TYPE_INT_RGB);
+//			Graphics2D g = resizedImage.createGraphics();
+//			g.drawImage(originalImage, 0, 0, 7, IMG_HEIGHT, null);
+//			g.dispose();
+//			return resizedImage;
+//	 }
 
 
 
@@ -630,11 +615,11 @@ public static int checkcorrectness(int TestAnswerLoc, int StudentSelected){ //1 
 
 	if(TestAnswerLoc == StudentSelected){
 		iscorrect++;
-		System.out.println("from check correctness = "  + iscorrect);
+//		System.out.println("from check correctness = "  + iscorrect);
 		return iscorrect;
 	}
 	else{
-		System.out.println("from check correctness = "  + iscorrect);
+//		System.out.println("from check correctness = "  + iscorrect);
 		return iscorrect;
 	}
 
@@ -725,7 +710,7 @@ public static BufferedImage ConvertPageToImage(File afile,int i) throws IOExcept
 		int numselected = 0;
 		int[] out = new int[3];//declare out array
 		for(Integer[] inter : ar){
-			System.out.println("inter[0] = " + inter[0] );
+//			System.out.println("inter[0] = " + inter[0] );
 			if(inter[0] >= 3000){
 				numselected++;
 			}
@@ -736,11 +721,11 @@ public static BufferedImage ConvertPageToImage(File afile,int i) throws IOExcept
 			count++;
 		}
 //		System.out.println("Max found in this array = "+index);
-		System.out.println("answer selected = " + index);
+//		System.out.println("answer selected = " + index);
 		out[0] = index;
 		out[1] = numselected;			
 		
-		System.out.println("area of selected box = " + ar[index][0]);
+//		System.out.println("area of selected box = " + ar[index][0]);
 		if(ar[index][0] < 3000){ //if the number of pixels is less than 3000, then non of them were selected
 			out[2] = 1;
 		}
@@ -765,7 +750,7 @@ public static BufferedImage ConvertPageToImage(File afile,int i) throws IOExcept
                 Integer time1 = entry1[2];
                 Integer time2 = entry2[2];
                 if(time1 == null || time2 == null){
-                	System.out.println("found a null and will exit next!");
+//                	System.out.println("found a null and will exit next!");
                 	return time1;
                 }
 //                System.out.println("(time1, time2) = (" + time1 + "," + time2 +")");
@@ -780,7 +765,7 @@ public static BufferedImage ConvertPageToImage(File afile,int i) throws IOExcept
 
 
 public void test(String input){
-	System.out.println("inside grader received = " + input);
+//	System.out.println("inside grader received = " + input);
 }//end of test
 
 }//end of GradingWorker

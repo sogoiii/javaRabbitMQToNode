@@ -28,7 +28,7 @@ public class byTest {
 	
 	public void ComputeMeanScoreTest(){
 		ScoreMean = StatUtils.mean(students.ScoreTotal);
-		System.out.println("mean score of all tests = " + ScoreMean);
+//		System.out.println("mean score of all tests = " + ScoreMean);
 	}//end o ComputeMeanScoreTest
 	
 	

@@ -1,6 +1,5 @@
 package RPC;
 
-import java.awt.Panel;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -125,7 +124,7 @@ public class GradePDF {
                                                 byte[] body)
                          throws IOException
                      {
-                         String routingKey = envelope.getRoutingKey();
+//                         String routingKey = envelope.getRoutingKey();
                          String contentType = properties.getContentType();
                          String correlationId = properties.getCorrelationId();
                          String responseQueue = properties.getReplyTo();
@@ -285,7 +284,7 @@ public class GradePDF {
       File fileToSave = new File("/Users/angellopozo/Dropbox/My Code/java/MainRabbitMongo/src/main/java/RPC/jpedalRPCTEST1.jpg");
 	  ImageIO.write(img, "jpg", fileToSave);
 	  JFrame frame = new JFrame("jpedal buffered image");
-		Panel panel = new Panel();
+//		Panel panel = new Panel();
 		frame.getContentPane().add(new JLabel(new ImageIcon(img)));
 		frame.pack();
 //		frame.setLocationRelativeTo(null);

@@ -22,7 +22,7 @@ public class byQuestion {
 	private int numS; //number of students
 	
 	public byQuestion(int numofquestions, int numofstudents){
-		System.out.println("byquestion num of questions = " + numofquestions);
+//		System.out.println("byquestion num of questions = " + numofquestions);
 		numQ = numofquestions;
 		numS = numofstudents;
 		CorrectlyAnswered = new double[numofquestions];
@@ -58,7 +58,7 @@ public class byQuestion {
 		
 		for(int i = 0; i < numQ;i++){
 			ScoreMean[i] = StatUtils.mean(Scoresbyquestion[i]);
-			System.out.println("Mean Score by question = " + ScoreMean[i]);
+//			System.out.println("Mean Score by question = " + ScoreMean[i]);
 		}//end of for
 	}//end of ComputeMean by question
 	
@@ -87,16 +87,16 @@ public class byQuestion {
 		
 		switch (selection){
 		case 0: SelectedWrongAnswer_0[question] = SelectedWrongAnswer_0[question] + 1;
-				System.out.println("updated wrong answer 0");
+//				System.out.println("updated wrong answer 0");
 				break;
 		case 1: SelectedWrongAnswer_1[question] = SelectedWrongAnswer_1[question] + 1;
-				System.out.println("updated wrong answer 1");
+//				System.out.println("updated wrong answer 1");
 				break;
 		case 2: SelectedWrongAnswer_2[question] = SelectedWrongAnswer_2[question] + 1;
-				System.out.println("updated wrong answer 2");
+//				System.out.println("updated wrong answer 2");
 				break;
 		case 3: SelectedCorrectAnswer[question] = SelectedCorrectAnswer[question] + 1;
-				System.out.println("updated Correct answer");
+//				System.out.println("updated Correct answer");
 				break;
 		default:  //thinks of something
 				break;
@@ -108,14 +108,14 @@ public class byQuestion {
 		for(int i =0; i < PercentCorrectlyAnswered.length; i++){
 //			System.out.println("Computation = " + CorrectlyAnswered[i] + " / " + numS);
 			PercentCorrectlyAnswered[i] = ( (float) CorrectlyAnswered[i]/numS)*100; //loss of data issue, if output is a float
-			System.out.println("Percent Correct = " + PercentCorrectlyAnswered[i]);
+//			System.out.println("Percent Correct = " + PercentCorrectlyAnswered[i]);
 		}//end of for loop	
 	}//end ComputePercentCorrectlyAnswered
 	
 	public void ComputePercentIncorrectlyAnswered(){
 		for(int i =0; i < PercentIncorrectlyAnswered.length; i++){
 			PercentIncorrectlyAnswered[i] = ( (float) IncorrectlyAnswered[i]/numS)*100;
-			System.out.println("Percent incorrect = " + PercentIncorrectlyAnswered[i]);
+//			System.out.println("Percent incorrect = " + PercentIncorrectlyAnswered[i]);
 		}//end of for loop	
 	}//end ComputePercentIncorrectlyAnswered
 	
@@ -130,7 +130,7 @@ public class byQuestion {
 		for(int i = 0; i < numQ;i++){
 			double variance = StatUtils.variance(Scoresbyquestion[i]);
 			STD[i] = Math.sqrt(variance);
-			System.out.println("Mean by Question variance = " + variance + " and std = " + STD[i]);
+//			System.out.println("Mean by Question variance = " + variance + " and std = " + STD[i]);
 		}
 	}//end computemeanbyquestionstd
 	

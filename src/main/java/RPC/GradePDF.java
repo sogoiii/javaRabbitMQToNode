@@ -153,7 +153,8 @@ public class GradePDF {
                          System.out.println("TestID = " + testId);
                          String fileid = GetPDFFileID(testId);
                          GridFSDBFile imageForOutput = gfsTestPDF.findOne(new ObjectId(fileid)); //search db for the pdf file
-                         
+//                         imageForOutput.writeTo(arg0)
+                        
                          InputStream is = new BufferedInputStream(imageForOutput.getInputStream());//create inputs stream from result
 //                         InputStream thefile = GrabPDFile(fileid); //create pdf file 
                          

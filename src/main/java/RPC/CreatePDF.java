@@ -150,45 +150,47 @@ public class CreatePDF {
                              " responseQueue: " +
                              responseQueue); 
                          
-                         /*
-                         	Working code is below NOTE: may want to do this inside a try catch and then finally so i send something back if anything happens here
-                         */
-                         long lStartTime = new Date().getTime(); //start time
-                         
-                         Map<String, Object> ReceivedMessage = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
-//                       System.out.println(userInMap.get("testid"));
-
-                         String idString = (String) ReceivedMessage.get("testid");
-                         String pdfID = null;
-                         try {
-                        	 pdfID = ActivePDFCreator.Create(idString, m);
-						} catch (COSVisitorException e) { //on any catch return to user, add text so that they get an error? so that they can tell us again later?
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (WriterException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} //create pdf with the message = testid
-                         
-                         waiting(2000); //test wait for debugging purposes
-                        
-                         long lEndTime = new Date().getTime(); //end time
-                         long difference = lEndTime - lStartTime; //check different
-                         System.out.println("Elapsed milliseconds: " + difference);
-                         System.out.println("Done with computational code!");
-                         /*
-                      		Working code Done now return to User
-                        */                        
+//                         /*
+//                         	Working code is below NOTE: may want to do this inside a try catch and then finally so i send something back if anything happens here
+//                         */
+//                         long lStartTime = new Date().getTime(); //start time
+//                         
+//                         Map<String, Object> ReceivedMessage = mapper.readValue(message.getBytes("UTF-8"),new TypeReference<Map<String, Object>>() {});
+////                       System.out.println(userInMap.get("testid"));
+//
+//                         String idString = (String) ReceivedMessage.get("testid");
+//                         String pdfID = null;
+//                         try {
+//                        	 pdfID = ActivePDFCreator.Create(idString, m);
+//						} catch (COSVisitorException e) { //on any catch return to user, add text so that they get an error? so that they can tell us again later?
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						} catch (WriterException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						} //create pdf with the message = testid
+//                         
+//                         waiting(2000); //test wait for debugging purposes
+//                        
+//                         long lEndTime = new Date().getTime(); //end time
+//                         long difference = lEndTime - lStartTime; //check different
+//                         System.out.println("Elapsed milliseconds: " + difference);
+//                         System.out.println("Done with computational code!");
+//                         /*
+//                      		Working code Done now return to User
+//                        */                        
                                               
                          AMQP.BasicProperties b = (new AMQP.BasicProperties.Builder())
                              .correlationId(correlationId)
                              .build();
-
-                         waiting(2000); //test wait for debugging purposes
+//
+//                         waiting(2000); //test wait for debugging purposes
+//                         
+//                         
+//                         calledtimes++;
+//                         //String senttonode = new String("{\"cool\":\""+ calledtimes+ "\"}" );
                          
-                         
-                         calledtimes++;
-                         //String senttonode = new String("{\"cool\":\""+ calledtimes+ "\"}" );
+                         String pdfID = "testPDFID_notvalidYet";
                          String senttonode = new String(pdfID);
                          channel.basicPublish("", responseQueue, b, pdfID.getBytes("UTF-8"));
                          channel.basicAck(deliveryTag, false);

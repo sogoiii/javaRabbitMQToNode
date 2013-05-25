@@ -29,6 +29,8 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import TestingStuff.Question;
 
@@ -88,7 +90,19 @@ public class CreatePDFWorker {
 	        	Question Q = new Question();
 	        	
 	        	String Quest = new String(Questions.get(i).get("Questionhtml").getTextValue()); //grab the question 
-	        	Q.setQuestion(StringEscapeUtils.unescapeHtml(Quest));
+	        	String unescaped = StringEscapeUtils.unescapeHtml(Quest); //change the &charcters into html <> characters... etc
+	        	Document doc = Jsoup.parse(unescaped); //parse the html
+	        	String noHTMLString = doc.body().text();//grab only the text inside of the html code
+	        	System.out.println("Original = " + Quest);
+	        	System.out.println("Unexcaped = " + unescaped);
+	        	System.out.println("no html version = " + noHTMLString);	        	
+	        	
+	        	
+	        	Q.setQuestion(noHTMLString);
+	        	
+//	        	String noHTMLString = Quest.replaceAll("\\<.*?>","");//
+	        	
+
 	    		String CA = new String(Questions.get(i).get("CorrectAnswertext").getTextValue()); //grab correct answer
 	    		Q.setAnswer(CA);
 	        	
